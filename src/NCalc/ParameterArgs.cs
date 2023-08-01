@@ -15,6 +15,6 @@ namespace NCalc
             }
         }
 
-        public bool HasResult { get; set; }
+        public bool HasResult { get; private protected set; }
     }
 }
