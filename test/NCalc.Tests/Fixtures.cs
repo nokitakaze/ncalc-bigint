@@ -710,7 +710,10 @@ namespace NCalc.Tests
             Assert.AreEqual($"token recognition error at: '\"' at 1:1{Environment.NewLine}token recognition error at: '\"' at 1:3", result1.Message);
 
             var result2 = Assert.ThrowsException<EvaluationException>(() => Expression.Compile("Format(\"{0:(###) ###-####}\", \"9999999999\")", true));
-            Assert.IsTrue(result2.Message.Contains("was not recognized as a valid DateTime."));
+            Assert.IsTrue(
+                result2.Message.Contains("was not recognized as a valid DateTime.") ||
+                result2.Message.Contains("не распознана как действительное значение DateTime")
+            );
         }
 
         [TestMethod]
