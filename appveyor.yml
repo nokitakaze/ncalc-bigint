@@ -1,18 +1,19 @@
-﻿version: 1.0.{build}
+﻿image: Visual Studio 2022
 
-image: Visual Studio 2019
-
-clone_folder: c:\projects\ncalc
+configuration:
+  - Release
 
 before_build:
-- nuget restore
-- choco install opencover.portable
-- choco install codecov
+  - dotnet restore
+  - choco install opencover.portable
+  - choco install codecov
 
 build:
   project: NCalc.sln
   verbosity: minimal
 
 test_script:
-- OpenCover.Console.exe -register:administrator -target:"vstest.console.exe" -targetargs:"/logger:Appveyor c:\projects\ncalc\test\NCalc.Tests\bin\Debug\net461\NCalc.Tests.dll" -output:".\NCalcUnitTestCoverage.xml"
-- codecov -f "NCalcUnitTestCoverage.xml"
+  - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -filter:"+[NCalc]* -[*.Tests]* -[*.Play]*" -output:".\NCalcUnitTestCoverage.xml" -oldstyle
+  
+after_test:
+  - codecov -f "NCalcUnitTestCoverage.xml"

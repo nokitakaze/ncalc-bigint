@@ -1,9 +1,9 @@
 # NCalc
 
-[![Appveyor](https://img.shields.io/appveyor/ci/yallie/ncalc.svg)](https://ci.appveyor.com/project/yallie/ncalc)
-[![Coverage](https://img.shields.io/codecov/c/github/ncalc/ncalc.svg)](https://codecov.io/gh/ncalc/ncalc)
-[![Tests](https://img.shields.io/appveyor/tests/yallie/ncalc.svg)](https://ci.appveyor.com/project/yallie/ncalc/build/tests)
-[![NuGet](https://img.shields.io/nuget/v/NCalcSync.svg)](https://nuget.org/packages/NCalcSync)
+[![Appveyor](https://img.shields.io/appveyor/ci/nokitakaze/ncalc-bigint.svg)](https://ci.appveyor.com/project/nokitakaze/ncalc-bigint)
+[![Coverage](https://img.shields.io/codecov/c/github/nokitakaze/ncalc-bigint.svg)](https://codecov.io/gh/nokitakaze/ncalc-bigint)
+[![Tests](https://img.shields.io/appveyor/tests/nokitakaze/ncalc-bigint.svg)](https://ci.appveyor.com/project/nokitakaze/ncalc-bigint/build/tests)
+<!-- [![NuGet](https://img.shields.io/nuget/v/NCalcSync.svg)](https://nuget.org/packages/NCalcSync) -->
 
 NCalc is a mathematical expressions evaluator in .NET. NCalc can parse any expression and evaluate the result, including static or dynamic parameters and custom functions.
 
