@@ -13,6 +13,7 @@ build:
   verbosity: minimal
 
 test_script:
+  - dotnet test
   - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -filter:"+[NCalc]* -[*.Tests]* -[*.Play]*" -output:".\NCalcUnitTestCoverage.xml" -oldstyle
   
 after_test:
