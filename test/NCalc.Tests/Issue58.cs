@@ -31,7 +31,7 @@ public class Issue58
         ShouldNotWork[TypeCode.Int32] = new List<TypeCode> { TypeCode.Boolean };
         ShouldNotWork[TypeCode.UInt32] = new List<TypeCode> { TypeCode.Boolean };
         ShouldNotWork[TypeCode.Int64] = new List<TypeCode> { TypeCode.Boolean };
-        ShouldNotWork[TypeCode.UInt64] = new List<TypeCode> { TypeCode.Boolean, };
+        ShouldNotWork[TypeCode.UInt64] = new List<TypeCode> { TypeCode.Boolean };
         ShouldNotWork[TypeCode.Single] = new List<TypeCode> { TypeCode.Boolean };
         ShouldNotWork[TypeCode.Double] = new List<TypeCode> { TypeCode.Boolean };
         ShouldNotWork[TypeCode.Decimal] = new List<TypeCode> { TypeCode.Boolean };
@@ -46,6 +46,8 @@ public class Issue58
                  {
                      ("+", 14 + 88),
                      ("-", 88 - 14),
+                     ("%", 88 % 14),
+                     ("*", 8 * 7),
                  })
         {
             foreach (var typeCodeA in AllTypes)
@@ -69,8 +71,13 @@ public class Issue58
         int expectedResult
     )
     {
-        const string lhsValue = "88";
-        const string rhsValue = "14";
+        var lhsValue = "88";
+        var rhsValue = "14";
+        if (operat == "*")
+        {
+            lhsValue = "8";
+            rhsValue = "7";
+        }
 
         var expr = $"x {operat} y";
         try
@@ -99,7 +106,7 @@ public class Issue58
     {
         var result = new List<object[]>();
 
-        foreach (var operat in new string[] { "+", "-" })
+        foreach (var operat in new string[] { "+", "-", "*", "%" })
         {
             foreach (var typeCodeA in AllTypes)
             {
