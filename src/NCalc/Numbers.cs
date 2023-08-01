@@ -5,14 +5,17 @@ namespace NCalc
 {
     public class Numbers
     {
-        private static object ConvertIfString(object s, CultureInfo cultureInfo)
+        private static object ConvertIfString(object s, IFormatProvider cultureInfo)
         {
-            if (s is String || s is char)
+            switch (s)
             {
-                return Decimal.Parse(s.ToString(), cultureInfo);
+                case string sValue:
+                    return decimal.Parse(sValue, cultureInfo);
+                case char charValue:
+                    return decimal.Parse(charValue.ToString(), cultureInfo);
+                default:
+                    return s;
             }
-
-            return s;
         }
 
         public static object Add(object a, object b)
@@ -1095,27 +1098,27 @@ namespace NCalc
             switch (typeCodeA)
             {
                 case TypeCode.Byte:
-                    return Math.Max((Byte)a, Convert.ToByte(b));
+                    return Math.Max((byte)a, Convert.ToByte(b));
                 case TypeCode.SByte:
-                    return Math.Max((SByte)a, Convert.ToSByte(b));
+                    return Math.Max((sbyte)a, Convert.ToSByte(b));
                 case TypeCode.Int16:
-                    return Math.Max((Int16)a, Convert.ToInt16(b));
+                    return Math.Max((short)a, Convert.ToInt16(b));
                 case TypeCode.UInt16:
-                    return Math.Max((UInt16)a, Convert.ToUInt16(b));
+                    return Math.Max((ushort)a, Convert.ToUInt16(b));
                 case TypeCode.Int32:
-                    return Math.Max((Int32)a, Convert.ToInt32(b));
+                    return Math.Max((int)a, Convert.ToInt32(b));
                 case TypeCode.UInt32:
-                    return Math.Max((UInt32)a, Convert.ToUInt32(b));
+                    return Math.Max((uint)a, Convert.ToUInt32(b));
                 case TypeCode.Int64:
-                    return Math.Max((Int64)a, Convert.ToInt64(b));
+                    return Math.Max((long)a, Convert.ToInt64(b));
                 case TypeCode.UInt64:
-                    return Math.Max((UInt64)a, Convert.ToUInt64(b));
+                    return Math.Max((ulong)a, Convert.ToUInt64(b));
                 case TypeCode.Single:
-                    return Math.Max((Single)a, Convert.ToSingle(b));
+                    return Math.Max((float)a, Convert.ToSingle(b));
                 case TypeCode.Double:
-                    return Math.Max((Double)a, Convert.ToDouble(b));
+                    return Math.Max((double)a, Convert.ToDouble(b));
                 case TypeCode.Decimal:
-                    return Math.Max((Decimal)a, Convert.ToDecimal(b));
+                    return Math.Max((decimal)a, Convert.ToDecimal(b));
                 default: throw new InvalidOperationException($"Max not implemented for parameters of {typeCodeA} and {typeCodeB}");
             }
         }
