@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace NCalc.BigIntegerOffset
+namespace NCalc.BigIntOffset
 {
     public partial class BigIntegerOffset
     {

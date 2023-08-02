@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NCalc.BigIntegerOffset
+namespace NCalc.BigIntOffset
 {
     public class BigIntegerOffsetException : Exception
     {

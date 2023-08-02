@@ -58,8 +58,8 @@ public class CompositeTests
 
         return firstTests
             .Select(t => new object[] { t.a, t.b, t.expr, t.expected })
-            .Where(x => (x[0] is BigInteger) || (x[0] is BigIntegerOffset.BigIntegerOffset) ||
-                        (x[1] is BigInteger) || (x[1] is BigIntegerOffset.BigIntegerOffset))
+            .Where(x => (x[0] is BigInteger) || (x[0] is BigIntOffset.BigIntegerOffset) ||
+                        (x[1] is BigInteger) || (x[1] is BigIntOffset.BigIntegerOffset))
             .ToArray();
     }
 
@@ -72,7 +72,7 @@ public class CompositeTests
             "long" => long.Parse(value),
             "ulong" => ulong.Parse(value),
             "BigInteger" => BigInteger.Parse(value),
-            "BigIntegerOffset" => NCalc.BigIntegerOffset.BigIntegerOffset.Parse(value),
+            "BigIntegerOffset" => NCalc.BigIntOffset.BigIntegerOffset.Parse(value),
             _ => throw new ArgumentOutOfRangeException(nameof(value))
         };
     }
@@ -151,17 +151,17 @@ public class CompositeTests
         };
 
         object val = e.Evaluate();
-        if (val is BigIntegerOffset.BigIntegerOffset valBIO)
+        if (val is BigIntOffset.BigIntegerOffset valBIO)
         {
             switch (expected)
             {
                 case decimal expDecimal:
-                    Assert.Equal(new BigIntegerOffset.BigIntegerOffset(expDecimal), valBIO);
+                    Assert.Equal(new BigIntOffset.BigIntegerOffset(expDecimal), valBIO);
                     break;
                 case BigInteger expBI:
-                    Assert.Equal(new BigIntegerOffset.BigIntegerOffset(expBI), valBIO);
+                    Assert.Equal(new BigIntOffset.BigIntegerOffset(expBI), valBIO);
                     break;
-                case BigIntegerOffset.BigIntegerOffset expBIO:
+                case BigIntOffset.BigIntegerOffset expBIO:
                     Assert.Equal(expBIO, valBIO);
                     break;
                 default:
@@ -178,8 +178,8 @@ public class CompositeTests
                 case BigInteger expBI:
                     Assert.Equal(expBI, valBI);
                     break;
-                case BigIntegerOffset.BigIntegerOffset expBIO:
-                    Assert.Equal(expBIO, new BigIntegerOffset.BigIntegerOffset(valBI));
+                case BigIntOffset.BigIntegerOffset expBIO:
+                    Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(valBI));
                     break;
                 default:
                     throw new NotImplementedException();

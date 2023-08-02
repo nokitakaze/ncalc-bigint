@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace NCalc.BigIntegerOffset
+namespace NCalc.BigIntOffset
 {
     public partial class BigIntegerOffset
     {
@@ -129,9 +129,19 @@ namespace NCalc.BigIntegerOffset
             return newValue;
         }
 
+        public static BigIntegerOffset operator +(BigInteger b, BigIntegerOffset a)
+        {
+            return a + b;
+        }
+
         public static BigIntegerOffset operator -(BigIntegerOffset a, BigInteger b)
         {
             return a + (-b);
+        }
+
+        public static BigIntegerOffset operator -(BigInteger b, BigIntegerOffset a)
+        {
+            return b + (-a);
         }
 
         public static BigIntegerOffset operator +(BigIntegerOffset a, long b)
@@ -139,9 +149,79 @@ namespace NCalc.BigIntegerOffset
             return a + new BigInteger(b);
         }
 
+        public static BigIntegerOffset operator +(long b, BigIntegerOffset a)
+        {
+            return a + new BigInteger(b);
+        }
+
         public static BigIntegerOffset operator -(BigIntegerOffset a, long b)
         {
             return a + new BigInteger(-b);
+        }
+
+        public static BigIntegerOffset operator -(long b, BigIntegerOffset a)
+        {
+            return -a + new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator +(BigIntegerOffset a, ulong b)
+        {
+            return a + new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator +(ulong b, BigIntegerOffset a)
+        {
+            return a + new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator -(BigIntegerOffset a, ulong b)
+        {
+            return a - new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator -(ulong b, BigIntegerOffset a)
+        {
+            return -a + new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator +(BigIntegerOffset a, decimal b)
+        {
+            return a + new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator +(decimal b, BigIntegerOffset a)
+        {
+            return a + new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator -(BigIntegerOffset a, decimal b)
+        {
+            return a + new BigIntegerOffset(-b);
+        }
+
+        public static BigIntegerOffset operator -(decimal b, BigIntegerOffset a)
+        {
+            return new BigIntegerOffset(b) - a;
+        }
+
+        public static BigIntegerOffset operator +(BigIntegerOffset a, double b)
+        {
+            return a + new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator +(double b, BigIntegerOffset a)
+        {
+            return a + new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator -(BigIntegerOffset a, double b)
+        {
+            return a + new BigIntegerOffset(-b);
+        }
+
+        public static BigIntegerOffset operator -(double b, BigIntegerOffset a)
+        {
+            return new BigIntegerOffset(b) - a;
         }
 
         #endregion
@@ -167,12 +247,37 @@ namespace NCalc.BigIntegerOffset
             return newValue;
         }
 
+        public static BigIntegerOffset operator *(BigInteger b, BigIntegerOffset a)
+        {
+            return a * b;
+        }
+
         public static BigIntegerOffset operator *(BigIntegerOffset a, long b)
         {
             return a * new BigInteger(b);
         }
 
-        public static BigIntegerOffset operator *(BigIntegerOffset a, decimal b)
+        public static BigIntegerOffset operator *(long b, BigIntegerOffset a)
+        {
+            return a * new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator *(BigIntegerOffset a, ulong b)
+        {
+            return a * new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator *(ulong b, BigIntegerOffset a)
+        {
+            return a * new BigInteger(b);
+        }
+
+        public static BigIntegerOffset operator *(decimal b, BigIntegerOffset a)
+        {
+            return a * new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator *(double b, BigIntegerOffset a)
         {
             return a * new BigIntegerOffset(b);
         }

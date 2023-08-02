@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace NCalc.BigIntegerOffset
+namespace NCalc.BigIntOffset
 {
     public partial class BigIntegerOffset
     {
@@ -34,7 +34,7 @@ namespace NCalc.BigIntegerOffset
             }
         }
 
-        protected BigInteger OffsetPower = BigInteger.Zero;
+        protected BigInteger OffsetPower = BigInteger.One;
 
         public void NormalizeOffset()
         {
