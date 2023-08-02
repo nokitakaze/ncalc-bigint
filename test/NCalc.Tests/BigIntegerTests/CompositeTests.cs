@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using NCalc.BigIntOffset;
 using Xunit;
 
 namespace NCalc.Tests.BigIntegerTests;
@@ -10,6 +11,8 @@ namespace NCalc.Tests.BigIntegerTests;
 [SuppressMessage("ReSharper", "ReturnTypeCanBeEnumerable.Local")]
 public class CompositeTests
 {
+    #region MathOperations
+
     public static object[][] MathOperationsData()
     {
         var rawInput = new (string a, string b)[]
@@ -17,9 +20,14 @@ public class CompositeTests
             ("14", "88"),
             ("123", "654"),
             ("123654", "987654"),
+            ("1.1", "5"),
+            ("1.1", "5.0"),
+            ("1.1", "5.1"),
+            ("100500", "5.0"),
+            ("0.1", "0.0654"),
         };
 
-        var types = new[] { "int", "uint", "long", "ulong", "BigInteger", "BigIntegerOffset", };
+        var types = new[] { "int", "uint", "long", "ulong", "decimal", "double", "BigInteger", "BigIntegerOffset", };
         var emptyResponse = Array.Empty<(object a, object b, string expr, object expected)>();
 
         var firstTests = rawInput
@@ -71,6 +79,8 @@ public class CompositeTests
             "uint" => uint.Parse(value),
             "long" => long.Parse(value),
             "ulong" => ulong.Parse(value),
+            "double" => double.Parse(value),
+            "decimal" => decimal.Parse(value),
             "BigInteger" => BigInteger.Parse(value),
             "BigIntegerOffset" => NCalc.BigIntOffset.BigIntegerOffset.Parse(value),
             _ => throw new ArgumentOutOfRangeException(nameof(value))
@@ -87,12 +97,12 @@ public class CompositeTests
     {
         var emptyResponse = Array.Empty<(object a, object b, string expr, object expected)>();
 
-        if (!IsDecimalInteger(decA) && IsTypeInteger(varA))
+        if (!IsDecimalRounded(decA) && IsTypeInteger(varA))
         {
             return emptyResponse;
         }
 
-        if (!IsDecimalInteger(decB) && IsTypeInteger(varB))
+        if (!IsDecimalRounded(decB) && IsTypeInteger(varB))
         {
             return emptyResponse;
         }
@@ -191,7 +201,7 @@ public class CompositeTests
         }
     }
 
-    private static bool IsDecimalInteger(decimal value)
+    private static bool IsDecimalRounded(decimal value)
     {
         value = Math.Abs(value);
         return (value == Math.Floor(value));
@@ -206,4 +216,65 @@ public class CompositeTests
     {
         return (obj is ulong or uint or ushort or byte);
     }
+
+    #endregion
+
+    #region Convert decimal
+
+    public static object[][] TestConvertDecimalData()
+    {
+        var values = new decimal[]
+        {
+            0m,
+            2m,
+            1_234_567_890m,
+            1000.0001m,
+            0.1m,
+            0.000_000_1m,
+            0.000_000_000_000_1m,
+            1_234_567_890.000_000_000_000_1m,
+        };
+
+        return values
+            .Concat(values.Where(x => x > 0).Select(t => -t))
+            .Select(t => new object[] { t })
+            .ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDecimalData))]
+    public void TestConvertDecimal(decimal rawValue)
+    {
+        var valueBio = new BigIntegerOffset(rawValue);
+        var valueString = valueBio.ToString();
+        var decimalRevert1 = (decimal)valueBio;
+        var decimalRevert2 = decimal.Parse(valueString);
+
+        Assert.Equal(rawValue, decimalRevert1);
+        Assert.Equal(rawValue, decimalRevert2);
+
+        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        Assert.Equal(valueBio, valueBio2);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDecimalData))]
+    public void TestConvertDouble(decimal preRawValue)
+    {
+        var rawValue = (double)preRawValue;
+
+        //
+        var valueBio = new BigIntegerOffset(rawValue);
+        var valueString = valueBio.ToString();
+        var decimalRevert1 = (decimal)valueBio;
+        var decimalRevert2 = decimal.Parse(valueString);
+
+        Assert.Equal(preRawValue, decimalRevert1);
+        Assert.Equal(preRawValue, decimalRevert2);
+
+        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        Assert.Equal(valueBio, valueBio2);
+    }
+
+    #endregion
 }

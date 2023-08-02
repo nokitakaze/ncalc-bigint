@@ -44,6 +44,11 @@ namespace NCalc.BigIntOffset
                 return;
             }
 
+            if (_offset == 0)
+            {
+                return;
+            }
+
             var value = (Value > 0) ? Value : -Value;
             var u = false;
             while ((_offset > 0) && (value % BigInteger10 == BigInteger.Zero))
@@ -67,8 +72,13 @@ namespace NCalc.BigIntOffset
                 return Value.ToString();
             }
 
-            var sign = (Value > 0) ? "" : "-";
-            var _value = (Value > 0) ? Value : -Value;
+            var sign = string.Empty;
+            var _value = Value;
+            if (Value < 0)
+            {
+                sign = "-";
+                _value = -_value;
+            }
 
             var vTail = _value % OffsetPower;
             var vEntier = (_value - vTail) / OffsetPower;
@@ -119,7 +129,30 @@ namespace NCalc.BigIntOffset
                 return new BigIntegerOffset(valBI);
             }
 
-            throw new NotImplementedException();
+            var chunks1 = chunks[1].TrimEnd('0');
+            if (chunks1 == string.Empty)
+            {
+                var valBI = BigInteger.Parse(chunks[0]) * sign;
+                return new BigIntegerOffset(valBI);
+            }
+
+            {
+                var tail = BigInteger.Zero;
+                for (var i = 0; i < chunks1.Length; i++)
+                {
+                    tail *= BigInteger10;
+                    var c1 = chunks1.Substring(i, 1);
+                    tail += int.Parse(c1);
+                }
+
+                // ReSharper disable once UseObjectOrCollectionInitializer
+                var valBI = new BigIntegerOffset(tail);
+                valBI.Offset = chunks1.Length;
+                valBI.Value += valBI.OffsetPower * BigInteger.Parse(chunks[0]);
+                valBI.Value *= sign;
+
+                return valBI;
+            }
         }
     }
 }

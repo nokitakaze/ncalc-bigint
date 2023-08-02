@@ -66,6 +66,26 @@ namespace NCalc.BigIntOffset
         // TODO Для дабла должен быть более сложный конструктор
         public BigIntegerOffset(double value, bool needFix = true)
         {
+            if (value == 0)
+            {
+                Value = Zero.Value;
+                Offset = Zero._offset;
+                return;
+            }
+
+            var sign = 1;
+            if (value < 0)
+            {
+                sign = -1;
+                value = -value;
+            }
+
+            if (value == Math.Floor(value))
+            {
+                Value = new BigInteger(value) * sign;
+                return;
+            }
+
             throw new NotImplementedException();
         }
     }
