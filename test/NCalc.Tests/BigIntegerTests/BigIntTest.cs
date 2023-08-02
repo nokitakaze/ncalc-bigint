@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Xunit;
 
-namespace NCalc.Tests;
+namespace NCalc.Tests.BigIntegerTests;
 
 public class BigIntTest
 {
