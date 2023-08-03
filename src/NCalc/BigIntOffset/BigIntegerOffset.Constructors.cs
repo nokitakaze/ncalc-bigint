@@ -86,6 +86,7 @@ namespace NCalc.BigIntOffset
                 value = -value;
             }
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (value == Math.Floor(value))
             {
                 Value = new BigInteger(value) * sign;

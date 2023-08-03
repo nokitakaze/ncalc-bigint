@@ -203,6 +203,7 @@ public class CompositeTests
         }
 
         object actual = e.Evaluate();
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (actual is BigIntOffset.BigIntegerOffset actualBIO)
         {
             switch (expected)
