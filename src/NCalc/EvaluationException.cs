@@ -8,10 +8,5 @@ namespace NCalc
             : base(message)
         {
         }
-
-        public EvaluationException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
     }
 }

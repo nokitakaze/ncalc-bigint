@@ -1397,6 +1397,7 @@ namespace NCalc
 
         #region Divide
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static object Divide(object a, object b)
         {
             return Divide(a, b, CultureInfo.CurrentCulture);

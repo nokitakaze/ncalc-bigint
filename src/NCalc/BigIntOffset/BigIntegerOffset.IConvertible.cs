@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace NCalc.BigIntOffset
 {
@@ -106,9 +107,21 @@ namespace NCalc.BigIntOffset
             {
                 return this.ToDouble(provider);
             }
+            else if (conversionType == typeof(float))
+            {
+                return this.ToSingle(provider);
+            }
+            else if (conversionType == typeof(string))
+            {
+                return this.ToString(provider);
+            }
+            else if (conversionType == typeof(BigInteger))
+            {
+                return (BigInteger) this;
+            }
             else
             {
-                throw new NotImplementedException();
+                throw new BigIntegerOffsetException($"Can't convert to type '{conversionType.FullName}'");
             }
         }
 

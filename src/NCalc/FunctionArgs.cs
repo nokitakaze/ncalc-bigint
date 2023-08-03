@@ -8,7 +8,7 @@ namespace NCalc
 
         public object Result
         {
-            get { return _result; }
+            get => _result;
             set
             {
                 _result = value;
@@ -18,12 +18,12 @@ namespace NCalc
 
         public bool HasResult { get; set; }
 
-        private Expression[] _parameters = new Expression[0];
+        private Expression[] _parameters = Array.Empty<Expression>();
 
         public Expression[] Parameters
         {
-            get { return _parameters; }
-            set { _parameters = value; }
+            get => _parameters;
+            set => _parameters = value;
         }
 
         public object[] EvaluateParameters()

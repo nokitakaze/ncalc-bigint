@@ -39,9 +39,10 @@ namespace NCalc
 
         public Expression(string expression, EvaluateOptions options, CultureInfo cultureInfo)
         {
-            if (String.IsNullOrEmpty(expression))
-                throw new
-                    ArgumentException("Expression can't be empty", "expression");
+            if (string.IsNullOrEmpty(expression))
+            {
+                throw new ArgumentException("Expression can't be empty", nameof(expression));
+            }
 
             OriginalExpression = expression;
             Options = options;
@@ -54,11 +55,8 @@ namespace NCalc
 
         public Expression(LogicalExpression expression, EvaluateOptions options, CultureInfo cultureInfo)
         {
-            if (expression == null)
-                throw new
-                    ArgumentException("Expression can't be null", "expression");
-
-            ParsedExpression = expression;
+            ParsedExpression =
+                expression ?? throw new ArgumentException("Expression can't be null", nameof(expression));
             Options = options;
             CultureInfo = cultureInfo;
         }
@@ -70,7 +68,7 @@ namespace NCalc
 
         public static bool CacheEnabled
         {
-            get { return _cacheEnabled; }
+            get => _cacheEnabled;
             set
             {
                 _cacheEnabled = value;
@@ -100,7 +98,6 @@ namespace NCalc
                         keysToRemove.Add(de.Key);
                     }
                 }
-
 
                 foreach (string key in keysToRemove)
                 {
@@ -164,23 +161,23 @@ namespace NCalc
                     if (errorListenerLexer.Errors.Any())
                     {
                         message.AppendLine();
-                        message.AppendLine(String.Join(Environment.NewLine, errorListenerLexer.Errors.ToArray()));
+                        message.AppendLine(string.Join(Environment.NewLine, errorListenerLexer.Errors.ToArray()));
                     }
                     if (errorListenerParser.Errors.Any())
                     {
                         message.AppendLine();
-                        message.AppendLine(String.Join(Environment.NewLine, errorListenerParser.Errors.ToArray()));
+                        message.AppendLine(string.Join(Environment.NewLine, errorListenerParser.Errors.ToArray()));
                     }
 
                     throw new EvaluationException(message.ToString());
                 }
                 if (errorListenerLexer.Errors.Any())
                 {
-                    throw new EvaluationException(String.Join(Environment.NewLine, errorListenerLexer.Errors.ToArray()));
+                    throw new EvaluationException(string.Join(Environment.NewLine, errorListenerLexer.Errors.ToArray()));
                 }
                 if (errorListenerParser.Errors.Any())
                 {
-                    throw new EvaluationException(String.Join(Environment.NewLine, errorListenerParser.Errors.ToArray()));
+                    throw new EvaluationException(string.Join(Environment.NewLine, errorListenerParser.Errors.ToArray()));
                 }
 
                 if (_cacheEnabled && !nocache)
@@ -247,7 +244,6 @@ namespace NCalc
                 ParsedExpression = Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
             }
 
-
             var visitor = new EvaluationVisitor(Options, CultureInfo);
             visitor.EvaluateFunction += EvaluateFunction;
             visitor.EvaluateParameter += EvaluateParameter;
@@ -269,11 +265,7 @@ namespace NCalc
                 {
                     if (parameter is IEnumerable)
                     {
-                        int localsize = 0;
-                        foreach (object o in (IEnumerable)parameter)
-                        {
-                            localsize++;
-                        }
+                        int localsize = ((IEnumerable)parameter).Cast<object>().Count();
 
                         if (size == -1)
                         {
@@ -288,8 +280,7 @@ namespace NCalc
 
                 foreach (string key in Parameters.Keys)
                 {
-                    var parameter = Parameters[key] as IEnumerable;
-                    if (parameter != null)
+                    if (Parameters[key] is IEnumerable parameter)
                     {
                         ParameterEnumerators.Add(key, parameter.GetEnumerator());
                     }
@@ -323,8 +314,8 @@ namespace NCalc
 
         public Dictionary<string, object> Parameters
         {
-            get { return _parameters ?? (_parameters = new Dictionary<string, object>()); }
-            set { _parameters = value; }
+            get => _parameters ?? (_parameters = new Dictionary<string, object>());
+            set => _parameters = value;
         }
 
     }

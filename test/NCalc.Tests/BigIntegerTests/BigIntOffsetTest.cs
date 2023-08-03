@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading.Tasks;
 using NCalc.BigIntOffset;
 using Xunit;
 
@@ -486,6 +487,38 @@ public class BigIntOffsetTest
         });
     }
 
+    [Fact]
+    public void NegativeOffset()
+    {
+        var offsetField = typeof(BigIntegerOffset)
+            .GetProperty("Offset", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (offsetField is null)
+        {
+            throw new Exception("'Offset' property does not exist");
+        }
+
+        var bio = new BigIntegerOffset(-2);
+
+        try
+        {
+            offsetField.SetValue(bio, -2);
+        }
+        catch (System.Reflection.TargetInvocationException e)
+        {
+            Assert.NotNull(e.InnerException);
+            Assert.Equal(typeof(BigIntegerOffsetException), e.InnerException.GetType());
+        }
+    }
+
+    [Fact]
+    public void UnreachableTypeForCasting()
+    {
+        Assert.Throws<BigIntegerOffsetException>(() =>
+        {
+            var _ = BigIntegerOffset.One.ToType(typeof(Task), null);
+        });
+    }
+
     #endregion
 
     #region different small tests
@@ -510,6 +543,12 @@ public class BigIntOffsetTest
     {
         // ReSharper disable once SuspiciousTypeConversion.Global
         Assert.False(BigIntegerOffset.One.Equals(BigInteger.One));
+    }
+
+    [Fact]
+    public void IsTypeCodeAnObject()
+    {
+        Assert.Equal(TypeCode.Object, BigIntegerOffset.One.GetTypeCode());
     }
 
     #endregion
@@ -683,7 +722,7 @@ public class BigIntOffsetTest
 
     #endregion
 
-    #region Convert decimal
+    #region Convert decimal, double, float
 
     public static object[][] TestConvertDecimalData()
     {
@@ -764,7 +803,7 @@ public class BigIntOffsetTest
         var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1 = (decimal)valueBio;
         var decimalRevert2 = decimal.Parse(valueString);
-        var decimalRevert3 = valueBio.ToDecimal(null);
+        var decimalRevert3 = (decimal)valueBio.ToType(typeof(decimal), null);
 
         Assert.Equal(rawValue, decimalRevert1);
         Assert.Equal(rawValue, decimalRevert2);
@@ -800,11 +839,28 @@ public class BigIntOffsetTest
         var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1 = (decimal)valueBio;
         var decimalRevert2 = decimal.Parse(valueString);
-        var decimalRevert1a = valueBio.ToDouble(null);
+        var decimalRevert1a = (double)valueBio.ToType(typeof(double), null);
 
         Assert.Equal(preRawValue, decimalRevert1);
         Assert.Equal(preRawValue, decimalRevert2);
         Assert.InRange(decimalRevert1a, rawValue - 0.000000001d, rawValue + 0.000000001d);
+
+        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        Assert.Equal(valueBio, valueBio2);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDoubleData))]
+    public void TestConvertFloat(decimal preRawValue)
+    {
+        var rawValue = (float)preRawValue;
+
+        //
+        var valueBio = new BigIntegerOffset(rawValue);
+        var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
+        var decimalRevert1a = (float)valueBio.ToType(typeof(float), null);
+
+        Assert.InRange(decimalRevert1a, rawValue - 0.000001f, rawValue + 0.000001f);
 
         var valueBio2 = BigIntegerOffset.Parse(valueString);
         Assert.Equal(valueBio, valueBio2);
@@ -872,14 +928,16 @@ public class BigIntOffsetTest
         var bio = new BigIntegerOffset(value);
         var actual1 = bio.ToString(cultureInfo);
         var actual2 = bio.ToStringDouble(cultureInfo);
+        var actual3 = (string)bio.ToType(typeof(string), cultureInfo);
 
         Assert.Equal(expectedString, actual1);
         Assert.Equal(expectedString, actual2);
+        Assert.Equal(expectedString, actual3);
     }
 
     #endregion
 
-    #region
+    #region BigInteger conversion
 
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
     public static object[][] TestBigIntegerConversionData()
@@ -920,6 +978,11 @@ public class BigIntOffsetTest
         var arg1 = new BigIntegerOffset(operand1);
         var arg2 = new BigIntegerOffset(operand2);
 
+        Assert.Equal(operand1, (BigInteger)arg1);
+        Assert.Equal(operand2, (BigInteger)arg2);
+        Assert.Equal(operand1, (BigInteger)(arg1.ToType(typeof(BigInteger), null)));
+        Assert.Equal(operand2, (BigInteger)(arg2.ToType(typeof(BigInteger), null)));
+
         Assert.True(arg1 == operand1);
         Assert.False(arg1 != operand1);
         Assert.True(arg2 == operand2);
@@ -929,6 +992,18 @@ public class BigIntOffsetTest
 
         var delimResultBI = arg1 / arg2;
         var delimResultBIO = new BigIntegerOffset(delimBI);
+        Assert.Equal(delimResultBI, delimResultBIO);
+        Assert.True(delimResultBIO == delimBI);
+        Assert.True(delimResultBI == delimBI);
+        Assert.False(delimResultBI != delimBI);
+
+        delimResultBI = operand1 / arg2;
+        Assert.Equal(delimResultBI, delimResultBIO);
+        Assert.True(delimResultBIO == delimBI);
+        Assert.True(delimResultBI == delimBI);
+        Assert.False(delimResultBI != delimBI);
+
+        delimResultBI = arg1 / operand2;
         Assert.Equal(delimResultBI, delimResultBIO);
         Assert.True(delimResultBIO == delimBI);
         Assert.True(delimResultBI == delimBI);

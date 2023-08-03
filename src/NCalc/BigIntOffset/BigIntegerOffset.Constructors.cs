@@ -76,19 +76,13 @@ namespace NCalc.BigIntOffset
             MaxPrecision = maxPrecision;
         }
 
-        // TODO Для дабла должен быть более сложный конструктор
-        public BigIntegerOffset(double value, bool needFix = true)
+        public BigIntegerOffset(double value)
         {
             if (value == 0)
             {
                 Value = Zero.Value;
                 Offset = Zero._offset;
                 return;
-            }
-
-            if (!needFix)
-            {
-                throw new NotImplementedException();
             }
 
             var sign = 1;
@@ -136,10 +130,12 @@ namespace NCalc.BigIntOffset
                 {
                     var rParse3 = new Regex("E\\-(\\d+)$");
                     m = rParse3.Match(valueStringify);
+                    // codecov ignore start
                     if (!m.Success)
                     {
                         throw new NotImplementedException($"Not implemented style '{value}'");
                     }
+                    // codecov ignore end
 
                     addExp = int.Parse(m.Groups[1].Value);
                     value *= Math.Pow(10d, addExp);

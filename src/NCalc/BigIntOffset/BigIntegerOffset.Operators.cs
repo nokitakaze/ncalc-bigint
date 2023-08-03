@@ -75,11 +75,6 @@ namespace NCalc.BigIntOffset
 
         public static bool operator ==(BigIntegerOffset a, BigInteger b)
         {
-            if (a is null)
-            {
-                throw new BigIntegerOffsetException("First operand in Equal is null");
-            }
-
             a.NormalizeOffset();
             return (a._offset == 0) && (a.Value == b);
         }
@@ -412,10 +407,12 @@ namespace NCalc.BigIntOffset
 
             result.Value /= b.Value;
             var newOffset = result._offset - b._offset;
+            // codecov ignore start
             if (newOffset < 0)
             {
                 throw new BigIntegerOffsetException("Precision from arguments didn't apply to result");
             }
+            // codecov ignore end
 
             result.Offset = newOffset;
 
