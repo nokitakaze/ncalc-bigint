@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace NCalc.BigIntOffset
@@ -13,10 +14,8 @@ namespace NCalc.BigIntOffset
             MaxPrecision = value.MaxPrecision;
         }
 
-        public BigIntegerOffset(BigIntegerOffset value, int maxPrecision)
+        public BigIntegerOffset(BigIntegerOffset value, int maxPrecision) : this(value)
         {
-            Value = value.Value;
-            Offset = value.Offset;
             MaxPrecision = maxPrecision;
         }
 
@@ -165,6 +164,12 @@ namespace NCalc.BigIntOffset
             Value = bio.Value * sign;
             Offset = bio._offset + addExp;
             NormalizeOffset();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BigIntegerOffset WithPrecision(int newPrecision)
+        {
+            return new BigIntegerOffset(this, newPrecision);
         }
     }
 }

@@ -358,4 +358,92 @@ public class BigIntOffsetTest
     }
 
     #endregion
+
+    #region max precision
+
+    public static object[][] CheckPrecisionData()
+    {
+        var rawValues = new decimal[]
+        {
+            0m,
+            1m,
+            2m,
+            10m,
+            1.0001m,
+            1.00001m,
+            1.00000000000001m,
+            0.0001m,
+            0.00001m,
+            0.00000000000001m,
+        };
+        rawValues = rawValues
+            .Concat(rawValues.Select(t => -t))
+            .Distinct()
+            .OrderBy(t => t)
+            .ToArray();
+
+        return rawValues
+            .SelectMany(operand1 => Enumerable
+                .Range(10, 20)
+                .Where(x => x % 3 == 0)
+                .Where(x => x != 18)
+                .SelectMany(operand1Prec => rawValues
+                    .Select(operand2 => new object[]
+                    {
+                        new BigIntegerOffset(operand1, operand1Prec),
+                        new BigIntegerOffset(operand2),
+                        operand1Prec,
+                    })
+                ))
+            .ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(CheckPrecisionData))]
+    public void CheckPrecision(
+        BigIntegerOffset operand1,
+        BigIntegerOffset operand2,
+        int _
+    )
+    {
+        var minPrecision = Math.Max(operand1.MaxPrecision, operand2.MaxPrecision);
+        var result = operand1 - operand2;
+        Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+
+        result = operand1 + operand2;
+        Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+
+        result = operand2 - operand1;
+        Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+
+        result = -operand1;
+        Assert.InRange(result.MaxPrecision, operand1.MaxPrecision, int.MaxValue);
+
+        result = operand1 * operand2;
+        Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+
+        result = operand2 * operand1;
+        Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+
+        if (operand2 > BigIntegerOffset.Zero)
+        {
+            result = operand1 / operand2;
+            if ((result != BigIntegerOffset.One) && (result != BigIntegerOffset.Zero))
+            {
+                Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+            }
+        }
+
+        // ReSharper disable once InvertIf
+        if (operand1 > BigIntegerOffset.Zero)
+        {
+            result = operand2 / operand1;
+            if ((result != BigIntegerOffset.One) && (result != BigIntegerOffset.Zero))
+            {
+                Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
+            }
+        }
+    }
+
+    #endregion
 }

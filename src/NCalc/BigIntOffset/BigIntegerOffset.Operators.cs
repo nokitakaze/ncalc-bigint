@@ -202,7 +202,7 @@ namespace NCalc.BigIntOffset
                 valueB *= p;
             }
 
-            var newValue = new BigIntegerOffset(a)
+            var newValue = new BigIntegerOffset(a, Math.Max(a.MaxPrecision, b.MaxPrecision))
             {
                 Value = valueA + valueB,
                 Offset = maxOffset,
@@ -327,7 +327,7 @@ namespace NCalc.BigIntOffset
 
         public static BigIntegerOffset operator *(BigIntegerOffset a, BigIntegerOffset b)
         {
-            var newValue = new BigIntegerOffset(a);
+            var newValue = new BigIntegerOffset(a, Math.Max(a.MaxPrecision, b.MaxPrecision));
             newValue.Offset += b.Offset;
             newValue.Value *= b.Value;
             newValue.NormalizeOffset();
@@ -402,7 +402,7 @@ namespace NCalc.BigIntOffset
 
             if (b == One)
             {
-                return a;
+                return a.WithPrecision(Math.Max(a.MaxPrecision, b.MaxPrecision));
             }
 
             if (a == b)
@@ -410,7 +410,7 @@ namespace NCalc.BigIntOffset
                 return One;
             }
 
-            var result = new BigIntegerOffset(a);
+            var result = new BigIntegerOffset(a, Math.Max(a.MaxPrecision, b.MaxPrecision));
             if (result._offset < result.MaxPrecision)
             {
                 var addExp = result.MaxPrecision - result._offset;
