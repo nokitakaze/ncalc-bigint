@@ -32,6 +32,11 @@ namespace NCalc.BigIntOffset
             return (long)(BigInteger)item;
         }
 
+        public static explicit operator ulong(BigIntegerOffset item)
+        {
+            return (ulong)(BigInteger)item;
+        }
+
         public static explicit operator decimal(BigIntegerOffset item)
         {
             return decimal.Parse(item.ToStringDouble());
@@ -440,6 +445,46 @@ namespace NCalc.BigIntOffset
         }
 
         public static BigIntegerOffset operator /(BigInteger a, BigIntegerOffset b)
+        {
+            return new BigIntegerOffset(a) / b;
+        }
+
+        public static BigIntegerOffset operator /(BigIntegerOffset a, decimal b)
+        {
+            return a / new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator /(decimal a, BigIntegerOffset b)
+        {
+            return new BigIntegerOffset(a) / b;
+        }
+
+        public static BigIntegerOffset operator /(BigIntegerOffset a, long b)
+        {
+            return a / new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator /(long a, BigIntegerOffset b)
+        {
+            return new BigIntegerOffset(a) / b;
+        }
+
+        public static BigIntegerOffset operator /(BigIntegerOffset a, ulong b)
+        {
+            return a / new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator /(ulong a, BigIntegerOffset b)
+        {
+            return new BigIntegerOffset(a) / b;
+        }
+
+        public static BigIntegerOffset operator /(BigIntegerOffset a, double b)
+        {
+            return a / new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator /(double a, BigIntegerOffset b)
         {
             return new BigIntegerOffset(a) / b;
         }

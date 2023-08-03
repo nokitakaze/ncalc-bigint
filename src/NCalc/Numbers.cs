@@ -1442,10 +1442,8 @@ namespace NCalc
                             return (decimal)aByte / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aByte) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aByte / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'byte' and '{b.GetType()}'");
@@ -1477,10 +1475,8 @@ namespace NCalc
                             return (decimal)aSbyte / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aSbyte) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aSbyte / bBigIntegerOffset;
-                        */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'sbyte' and '{b.GetType()}'");
@@ -1512,10 +1508,8 @@ namespace NCalc
                             return (decimal)aShort / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aShort) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aShort / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'short' and '{b.GetType()}'");
@@ -1547,10 +1541,8 @@ namespace NCalc
                             return (decimal)aUshort / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aUshort) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aUshort / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'ushort' and '{b.GetType()}'");
@@ -1582,10 +1574,8 @@ namespace NCalc
                             return (decimal)aInt / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aInt) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aInt / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'int' and '{b.GetType()}'");
@@ -1617,10 +1607,8 @@ namespace NCalc
                             return (decimal)aUint / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aUint) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aUint / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'uint' and '{b.GetType()}'");
@@ -1652,10 +1640,8 @@ namespace NCalc
                             return (decimal)aLong / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aLong) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aLong / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'long' and '{b.GetType()}'");
@@ -1687,10 +1673,8 @@ namespace NCalc
                             return (decimal)aUlong / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aUlong) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aUlong / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'ulong' and '{b.GetType()}'");
@@ -1722,10 +1706,8 @@ namespace NCalc
                             return (decimal)aFloat / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aFloat) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aFloat / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'float' and '{b.GetType()}'");
@@ -1757,10 +1739,8 @@ namespace NCalc
                             return (decimal)aDouble / bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aDouble) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aDouble / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'double' and '{b.GetType()}'");
@@ -1792,10 +1772,8 @@ namespace NCalc
                             return aDecimal / (decimal)bDecimal;
                         case BigInteger bBigInteger:
                             return new BigInteger(aDecimal) / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aDecimal / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'decimal' and '{b.GetType()}'");
@@ -1827,16 +1805,13 @@ namespace NCalc
                             return aBigInteger / new BigInteger(bDecimal);
                         case BigInteger bBigInteger:
                             return aBigInteger / bBigInteger;
-                        /* todo
                         case BigIntegerOffset bBigIntegerOffset:
                             return aBigInteger / bBigIntegerOffset;
-                            */
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'BigInteger' and '{b.GetType()}'");
                     }
-                    /*
-                case BigIntegerOffset.BigIntegerOffset aBigIntegerOffset:
+                case BigIntegerOffset aBigIntegerOffset:
                     switch (b)
                     {
                         case byte bByte:
@@ -1863,13 +1838,12 @@ namespace NCalc
                             return (decimal)aBigIntegerOffset / bDecimal;
                         case BigInteger bBigInteger:
                             return aBigIntegerOffset / bBigInteger;
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aBigIntegerOffset / bBigIntegerOffset;
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '/' can't be applied to operands of types 'BigIntegerOffset' and '{b.GetType()}'");
                     }
-                    */
 
                 default:
                     throw new InvalidOperationException(
@@ -1927,7 +1901,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aByte) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aByte % bBigIntegerOffset;
                         */
                         default:
@@ -1962,7 +1936,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aSbyte) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aSbyte % bBigIntegerOffset;
                         */
                         default:
@@ -1997,7 +1971,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aShort) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aShort % bBigIntegerOffset;
                         */
                         default:
@@ -2032,7 +2006,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aUshort) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aUshort % bBigIntegerOffset;
                         */
                         default:
@@ -2067,7 +2041,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aInt) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aInt % bBigIntegerOffset;
                         */
                         default:
@@ -2102,7 +2076,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aUint) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aUint % bBigIntegerOffset;
                         */
                         default:
@@ -2137,7 +2111,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aLong) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aLong % bBigIntegerOffset;
                         */
                         default:
@@ -2172,7 +2146,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aUlong) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aUlong % bBigIntegerOffset;
                         */
                         default:
@@ -2207,7 +2181,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aFloat) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aFloat % bBigIntegerOffset;
                         */
                         default:
@@ -2242,7 +2216,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aDouble) % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aDouble % bBigIntegerOffset;
                         */
                         default:
@@ -2310,7 +2284,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return aBigInteger % bBigInteger;
                         /*
-                        case BigIntegerOffset.BigIntegerOffset bBigIntegerOffset:
+                        case BigIntegerOffset bBigIntegerOffset:
                             return aBigInteger % bBigIntegerOffset;
                         */
                         default:

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace NCalc.BigIntOffset
 {
@@ -96,6 +97,12 @@ namespace NCalc.BigIntOffset
         public override string ToString()
         {
             return ToStringDouble();
+        }
+
+        public string ToString(IFormatProvider provider)
+        {
+            var a = provider.ToString();
+            throw new NotImplementedException();
         }
 
         public static BigIntegerOffset Parse(string value)

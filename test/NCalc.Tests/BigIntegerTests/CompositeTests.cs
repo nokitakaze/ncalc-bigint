@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -89,6 +88,21 @@ public class CompositeTests
                 });
             })
             .Where(x => x.a is not null)
+            .Where(x => (x.a is BigIntegerOffset) || (x.b is BigIntegerOffset))
+            .Where(x =>
+            {
+                if (!((x.a is BigIntegerOffset) && (x.b is BigInteger)))
+                {
+                    return false;
+                }
+
+                if (x.expected is BigIntegerOffset expected)
+                {
+                    return expected == new BigIntegerOffset(0.22m);
+                }
+
+                return false;
+            }) // todo delme
             .ToArray();
 
         return divisionTests;
@@ -279,6 +293,14 @@ public class CompositeTests
         };
 
         object actual = e.Evaluate();
+        if ((x.value is BigIntOffset.BigIntegerOffset) || (y.value is BigIntOffset.BigIntegerOffset))
+        {
+            Assert.True(
+                actual is BigIntOffset.BigIntegerOffset,
+                $"Arithmetic operation '{expr}' made '{actual.GetType().Name}' from '{x.value.GetType().Name}' and '{y.value.GetType().Name}' instead of BigIntegerOffset"
+            );
+        }
+
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (actual is BigIntOffset.BigIntegerOffset actualBIO)
         {
@@ -294,7 +316,8 @@ public class CompositeTests
                     Assert.Equal(expBIO, actualBIO);
                     break;
                 default:
-                    throw new NotImplementedException("Tests: MathOperations");
+                    throw new NotImplementedException(
+                        $"Tests: MathOperations. '{actual.GetType().Name}' & '{expected.GetType().Name}'");
             }
         }
         else if (actual is BigInteger actualBI)
@@ -311,7 +334,8 @@ public class CompositeTests
                     Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(actualBI));
                     break;
                 default:
-                    throw new NotImplementedException("Tests: MathOperations");
+                    throw new NotImplementedException(
+                        $"Tests: MathOperations. '{actual.GetType().Name}' & '{expected.GetType().Name}'");
             }
         }
         else if (actual is decimal actualDecimal)
@@ -327,12 +351,31 @@ public class CompositeTests
                     Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(actualDecimal));
                     break;
                 default:
-                    throw new NotImplementedException("Tests: MathOperations");
+                    throw new NotImplementedException(
+                        $"Tests: MathOperations. '{actual.GetType().Name}' & '{expected.GetType().Name}'");
+            }
+        }
+        else if (actual is double actualDouble)
+        {
+            switch (expected)
+            {
+                case decimal expDecimal:
+                    Assert.Equal(expDecimal, (decimal)actualDouble);
+                    break;
+                case BigInteger:
+                    throw new ArgumentOutOfRangeException(nameof(expected), "expected value can't be BigInteger");
+                case BigIntOffset.BigIntegerOffset expBIO:
+                    Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(actualDouble));
+                    break;
+                default:
+                    throw new NotImplementedException(
+                        $"Tests: MathOperations. '{actual.GetType().Name}' & '{expected.GetType().Name}'");
             }
         }
         else
         {
-            throw new NotImplementedException("Tests: MathOperations");
+            throw new NotImplementedException(
+                $"Tests: MathOperations. '{actual.GetType().Name}' & '{expected.GetType().Name}'");
         }
     }
 
@@ -484,4 +527,33 @@ public class CompositeTests
     }
 
     #endregion
+
+    [Fact]
+    public void Delme()
+    {
+        // todo delme
+        var x = new BigIntegerOffset(1.1m);
+        var y = new BigInteger(5);
+        var expected = new BigIntegerOffset(1.1m / 5);
+
+        var e = new NCalc.Expression("x / y");
+        e.EvaluateParameter += delegate(string name, ParameterArgs args)
+        {
+            args.Result = name switch
+            {
+                "x" => x,
+                "y" => y,
+                _ => args.Result
+            };
+        };
+
+        object actual = e.Evaluate();
+        if (actual is not BigIntegerOffset actualBIO)
+        {
+            Assert.Fail();
+            return;
+        }
+
+        Assert.Equal(expected, actualBIO);
+    }
 }
