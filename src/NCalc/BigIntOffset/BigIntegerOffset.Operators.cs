@@ -211,7 +211,7 @@ namespace NCalc.BigIntOffset
 
         public static BigIntegerOffset operator +(double b, BigIntegerOffset a)
         {
-            return a + new BigIntegerOffset(b);
+            return a + b;
         }
 
         public static BigIntegerOffset operator -(BigIntegerOffset a, double b)

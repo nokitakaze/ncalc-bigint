@@ -135,8 +135,8 @@ namespace NCalc.BigIntOffset
                 }
             }
 
-            var bio = BigIntegerOffset.Parse(valueStringify);
-            if (valueStringifyLength + addExp > 18)
+            var bio = Parse(valueStringify);
+            if (valueStringifyLength + addExp >= 18)
             {
                 if (bio.Value % 1000 == 1)
                 {
