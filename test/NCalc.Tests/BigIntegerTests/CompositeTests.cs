@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -69,6 +70,13 @@ public class CompositeTests
             .Select(t => new object[] { t.a, t.b, t.expr, t.expected })
             .Where(x => (x[0] is BigInteger) || (x[0] is BigIntOffset.BigIntegerOffset) ||
                         (x[1] is BigInteger) || (x[1] is BigIntOffset.BigIntegerOffset))
+            .Select(t => new object[]
+            {
+                new ParamWrapper(t[0]),
+                new ParamWrapper(t[1]),
+                t[2],
+                t[3],
+            })
             .ToArray();
     }
 
@@ -148,18 +156,23 @@ public class CompositeTests
 
     [Theory]
     [MemberData(nameof(MathOperationsData))]
-    public void MathOperations(object x, object y, string expr, object expected)
+    public void MathOperations(ParamWrapper x, ParamWrapper y, string expr, object expected)
     {
         var e = new NCalc.Expression(expr);
         e.EvaluateParameter += delegate(string name, ParameterArgs args)
         {
             args.Result = name switch
             {
-                "x" => x,
-                "y" => y,
+                "x" => x.value,
+                "y" => y.value,
                 _ => args.Result
             };
         };
+
+        if ((expr == "x - y") && (x.value is 1.1m) && (y.value is BigInteger Y1) && (Y1 == 5))
+        {
+            Debugger.Break();
+        }
 
         object val = e.Evaluate();
         if (val is BigIntOffset.BigIntegerOffset valBIO)
@@ -176,7 +189,7 @@ public class CompositeTests
                     Assert.Equal(expBIO, valBIO);
                     break;
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException("Tests: MathOperations");
             }
         }
         else if (val is BigInteger valBI)
@@ -193,12 +206,28 @@ public class CompositeTests
                     Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(valBI));
                     break;
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException("Tests: MathOperations");
+            }
+        }
+        else if (val is decimal valDecimal)
+        {
+            switch (expected)
+            {
+                case decimal expDecimal:
+                    Assert.Equal(expDecimal, valDecimal);
+                    break;
+                case BigInteger:
+                    throw new ArgumentOutOfRangeException(nameof(expected), "expected value can't be BigInteger");
+                case BigIntOffset.BigIntegerOffset expBIO:
+                    Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(valDecimal));
+                    break;
+                default:
+                    throw new NotImplementedException("Tests: MathOperations");
             }
         }
         else
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Tests: MathOperations");
         }
     }
 
@@ -216,6 +245,21 @@ public class CompositeTests
     private static bool IsTypeUnsignedInteger(object obj)
     {
         return (obj is ulong or uint or ushort or byte);
+    }
+
+    public class ParamWrapper
+    {
+        public readonly object value;
+
+        public ParamWrapper(object value)
+        {
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return $"'{value}' [{value.GetType().Name}]";
+        }
     }
 
     #endregion
