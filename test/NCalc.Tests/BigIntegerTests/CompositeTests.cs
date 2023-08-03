@@ -402,4 +402,100 @@ public class CompositeTests
     }
 
     #endregion
+
+    #region Second part
+
+    public static object[][] TestSecondCompositeData()
+    {
+        var items = new List<(string expr, string[] arguments, decimal expected)>()
+        {
+            ("x - 0.00001", new string[] { "3" }, 3m - 0.000_01m),
+            ("x - 0.00001", new string[] { "0.03" }, 0.03m - 0.000_01m),
+            ("x + 0.00001", new string[] { "3" }, 3m + 0.000_01m),
+            ("x + 0.00001", new string[] { "0.03" }, 0.03m + 0.000_01m),
+        };
+
+        {
+            var s = string.Empty;
+            var dec1 = 1m;
+            var dec3 = 3m;
+            for (var i = 1; i < 10; i++)
+            {
+                dec1 *= 0.1m;
+                dec3 *= 0.1m;
+
+                //
+                items.Add(("0.3 - x", new string[] { $"0.{s}1" }, 0.3m - dec1));
+                items.Add(("0.03 - x", new string[] { $"0.{s}1" }, 0.03m - dec1));
+                items.Add(("0.3 + x", new string[] { $"0.{s}1" }, 0.3m + dec1));
+                items.Add(("0.03 + x", new string[] { $"0.{s}1" }, 0.03m + dec1));
+                items.Add(("3.7 + x", new string[] { $"0.{s}1" }, 3.7m + dec1));
+                items.Add(("3.7 - x", new string[] { $"0.{s}1" }, 3.7m - dec1));
+
+                //
+                items.Add(("x - 0.00001", new string[] { $"0.{s}3" }, dec3 - 0.00001m));
+                items.Add(("x + 0.00001", new string[] { $"0.{s}3" }, dec3 + 0.00001m));
+
+                //
+                s += "0";
+            }
+        }
+
+        var varNames = new string[] { "x", "y", "z", "a", "b", "c" };
+
+        return items
+            .Select(t =>
+            {
+                var arguments = t.arguments
+                    .Select((value, index) => (value, index))
+                    .ToDictionary(t1 => varNames[t1.index], t1 => new ParamWrapper(BigIntegerOffset.Parse(t1.value)));
+
+                return new object[]
+                {
+                    t.expr,
+                    arguments,
+                    t.expected
+                };
+            })
+            .ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestSecondCompositeData))]
+    public void TestSecondComposite(
+        string expr,
+        Dictionary<string, ParamWrapper> arguments,
+        decimal expected
+    )
+    {
+        var e = new NCalc.Expression(expr);
+        e.EvaluateParameter += delegate(string name, ParameterArgs args)
+        {
+            var rawValue = arguments[name].value;
+            BigIntegerOffset castedValue;
+            if (rawValue is BigIntegerOffset a1)
+            {
+                castedValue = a1;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            args.Result = castedValue;
+        };
+
+        object actual = e.Evaluate();
+        if (actual is BigIntOffset.BigIntegerOffset actualBIO)
+        {
+            Assert.Equal(new BigIntegerOffset(expected), actualBIO);
+        }
+        else
+        {
+            throw new NotImplementedException(
+                $"Tests: MathOperations. '{actual.GetType().Name}' & '{expected.GetType().Name}'");
+        }
+    }
+
+    #endregion
 }

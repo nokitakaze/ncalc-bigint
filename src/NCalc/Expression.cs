@@ -11,6 +11,7 @@ using Antlr4.Runtime;
 
 namespace NCalc
 {
+    [DebuggerDisplay("{OriginalExpression}")]
     public class Expression
     {
         public EvaluateOptions Options { get; set; }
