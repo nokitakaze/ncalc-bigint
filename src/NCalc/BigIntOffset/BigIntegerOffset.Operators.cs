@@ -116,6 +116,58 @@ namespace NCalc.BigIntOffset
 
         #endregion
 
+        #region operator > >= <= <
+
+        public static bool operator >(BigIntegerOffset a, BigIntegerOffset b)
+        {
+            if (a == b)
+            {
+                return false;
+            }
+
+            if (b == Zero)
+            {
+                return a.Value > 0;
+            }
+
+            if ((a.Value < 0) != (b.Value < 0))
+            {
+                return (a.Value >= 0);
+            }
+
+            /*
+            var antiNega = (a.Value < 0);
+
+            var aEntier = a.Value / a.OffsetPower;
+            var bEntier = b.Value / b.OffsetPower;
+
+            if (aEntier != bEntier)
+            {
+                var u = aEntier > bEntier;
+                return antiNega ? u : !u;
+            }
+            */
+
+            return (a - b).Value > 0;
+        }
+
+        public static bool operator <(BigIntegerOffset a, BigIntegerOffset b)
+        {
+            return (b > a);
+        }
+
+        public static bool operator >=(BigIntegerOffset a, BigIntegerOffset b)
+        {
+            return !(b > a);
+        }
+
+        public static bool operator <=(BigIntegerOffset a, BigIntegerOffset b)
+        {
+            return !(a > b);
+        }
+
+        #endregion
+
         #region operator +-
 
         /// <summary>
