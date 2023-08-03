@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using NCalc.BigIntOffset;
@@ -232,6 +233,28 @@ public class CompositeTests
             0.1m,
             0.000_000_1m,
             0.000_000_000_000_1m,
+            0.100_1m,
+            0.100_000_1m,
+            0.100_000_001m,
+            0.100_000_000_001m,
+            0.100_000_000_000_001m,
+            0.100_000_000_000_000_001m,
+            0.100_2m,
+            0.100_000_2m,
+            0.100_000_002m,
+            0.100_000_000_002m,
+            0.100_000_000_000_002m,
+            0.100_000_000_000_000_002m,
+            0.3m,
+            0.03m,
+            0.003m,
+            0.000_3m,
+            0.000_03m,
+            0.000_003m,
+            0.000_000_3m,
+            0.000_000_03m,
+            0.000_000_003m,
+            0.000_000_000_3m,
             1_234_567_890.000_000_000_000_1m,
         };
 
@@ -239,6 +262,34 @@ public class CompositeTests
             .Concat(values.Where(x => x > 0).Select(t => -t))
             .Select(t => new object[] { t })
             .ToArray();
+    }
+
+    public static object[][] TestConvertDoubleData()
+    {
+        return TestConvertDecimalData()
+            .Select(t =>
+            {
+                var value = (decimal)t[0];
+                // ReSharper disable once ConvertIfStatementToReturnStatement
+                if (Math.Abs(value).ToString(CultureInfo.InvariantCulture).Length > 18)
+                {
+                    return null;
+                }
+
+                return t;
+            })
+            .Where(x => x is not null)
+            .ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDecimalData))]
+    public void StringifyDecimal(decimal rawValue)
+    {
+        var valueBio1 = new BigIntegerOffset(rawValue);
+        var stringify = valueBio1.ToStringDouble();
+        var valueBio2 = BigIntegerOffset.Parse(stringify);
+        Assert.Equal(valueBio1, valueBio2);
     }
 
     [Theory]
@@ -258,7 +309,7 @@ public class CompositeTests
     }
 
     [Theory]
-    [MemberData(nameof(TestConvertDecimalData))]
+    [MemberData(nameof(TestConvertDoubleData))]
     public void TestConvertDouble(decimal preRawValue)
     {
         var rawValue = (double)preRawValue;

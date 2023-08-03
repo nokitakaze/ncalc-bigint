@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace NCalc.BigIntOffset
 {
@@ -73,6 +74,11 @@ namespace NCalc.BigIntOffset
                 return;
             }
 
+            if (!needFix)
+            {
+                throw new NotImplementedException();
+            }
+
             var sign = 1;
             if (value < 0)
             {
@@ -86,7 +92,65 @@ namespace NCalc.BigIntOffset
                 return;
             }
 
-            throw new NotImplementedException();
+            var valueStringify = value.ToString("G17");
+            var valueStringifyLength = valueStringify.Length;
+
+            int addExp = 0;
+            {
+                var rParse1 = new Regex("^9\\.9+[0-9]{1,2}E\\-(\\d+)$");
+                var m = rParse1.Match(valueStringify);
+                if (m.Success)
+                {
+                    var exp = int.Parse(m.Groups[1].Value);
+                    Value = sign;
+                    Offset = exp - 1;
+
+                    return;
+                }
+
+                var rParse2 = new Regex("^1E\\-(\\d+)$");
+                m = rParse2.Match(valueStringify);
+                if (m.Success)
+                {
+                    var exp = int.Parse(m.Groups[1].Value);
+                    Value = sign;
+                    Offset = exp;
+
+                    return;
+                }
+
+                if (valueStringify.Contains("E"))
+                {
+                    var rParse3 = new Regex("E\\-(\\d+)$");
+                    m = rParse3.Match(valueStringify);
+                    if (!m.Success)
+                    {
+                        throw new NotImplementedException($"Not implemented style '{value}'");
+                    }
+
+                    addExp = int.Parse(m.Groups[1].Value);
+                    value *= Math.Pow(10d, addExp);
+                    valueStringify = value.ToString("G17");
+                    valueStringifyLength = valueStringify.Length;
+                }
+            }
+
+            var bio = BigIntegerOffset.Parse(valueStringify);
+            if (valueStringifyLength + addExp > 18)
+            {
+                if (bio.Value % 1000 == 1)
+                {
+                    bio.Value--;
+                }
+                else if (bio.Value % 1000 >= 995)
+                {
+                    bio.Value += 1000 - (bio.Value % 1000);
+                }
+            }
+
+            Value = bio.Value * sign;
+            Offset = bio._offset + addExp;
+            NormalizeOffset();
         }
     }
 }
