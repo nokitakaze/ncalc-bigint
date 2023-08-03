@@ -15,6 +15,85 @@ public class CompositeTests
 {
     #region MathOperations
 
+    public static (object a, object b, string expr, object expected)[] MathOperationsData_Division()
+    {
+        var rawInput = new (string a, string b)[]
+        {
+            ("100", "10"),
+            ("5", "10"),
+            ("1488", "31"),
+            ("1488", "48"),
+            ("1.1", "5"),
+            ("1.1", "5.0"),
+            ("1.11", "3"),
+            ("1.11", "37"),
+            ("1.11", "3.7"),
+            ("1.11", "0.0000000000037"),
+        };
+
+        var types = new[] { "int", "uint", "long", "ulong", "decimal", "double", "BigInteger", "BigIntegerOffset", };
+
+        var divisionTests = rawInput
+            .SelectMany(item =>
+            {
+                var decA = decimal.Parse(item.a);
+                var decB = decimal.Parse(item.b);
+
+                return types.SelectMany(typeA =>
+                {
+                    try
+                    {
+                        object varA = ConvertType(item.a, typeA);
+                        if (varA is null)
+                        {
+                            throw new Exception($"Can not convert '{item.a}' to '{typeA}'");
+                        }
+
+                        if (!IsThisDecimalRounded(decA) && IsTypeInteger(varA))
+                        {
+                            return default;
+                        }
+
+                        return types.Select(typeB =>
+                        {
+                            try
+                            {
+                                object varB = ConvertType(item.b, typeB);
+                                if (varB is null)
+                                {
+                                    throw new Exception($"Can not convert '{item.b}' to '{typeB}'");
+                                }
+
+                                if (!IsThisDecimalRounded(decB) && IsTypeInteger(varB))
+                                {
+                                    return default;
+                                }
+
+                                return (
+                                    a: varA,
+                                    b: varB,
+                                    expr: "x / y",
+                                    expected: (object)(new BigIntegerOffset(decA / decB))
+                                );
+                            }
+                            catch (Exception)
+                            {
+                                return default;
+                            }
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        return Array.Empty<(object a, object b, string expr, object expected)>();
+                    }
+                });
+            })
+            .Where(x => x.a is not null)
+            .ToArray();
+
+        return divisionTests;
+    }
+
     [SuppressMessage("ReSharper", "RedundantIfElseBlock")]
     public static object[][] MathOperationsData()
     {
@@ -68,6 +147,8 @@ public class CompositeTests
             .ToArray();
 
         return firstTests
+            .Take(0) // todo delme
+            .Concat(MathOperationsData_Division())
             .Select(t => new object[] { t.a, t.b, t.expr, t.expected })
             .Where(x => (x[0] is BigInteger) || (x[0] is BigIntOffset.BigIntegerOffset) ||
                         (x[1] is BigInteger) || (x[1] is BigIntOffset.BigIntegerOffset))
