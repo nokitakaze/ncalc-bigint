@@ -53,6 +53,9 @@ namespace NCalc.Tests
             Assert.Equal(true, new Expression("true").Evaluate());
             Assert.Equal("true", new Expression("'true'").Evaluate());
             Assert.Equal("azerty", new Expression("'azerty'").Evaluate());
+            Assert.Equal(0d, new Expression("Sin(0)").Evaluate());
+            Assert.Equal(2d, new Expression("Sqrt(4)").Evaluate());
+            Assert.Equal(0d, new Expression("Tan(0)").Evaluate());
         }
 
         [Fact]
