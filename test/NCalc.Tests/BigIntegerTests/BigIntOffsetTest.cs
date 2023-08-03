@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -464,6 +465,24 @@ public class BigIntOffsetTest
         });
     }
 
+    [Fact]
+    public void ToChar()
+    {
+        Assert.Throws<BigIntegerOffsetException>(() =>
+        {
+            var _ = BigIntegerOffset.One.ToChar(null);
+        });
+    }
+
+    [Fact]
+    public void ToDateTime()
+    {
+        Assert.Throws<BigIntegerOffsetException>(() =>
+        {
+            var _ = BigIntegerOffset.One.ToDateTime(null);
+        });
+    }
+
     #endregion
 
     #region different small tests
@@ -534,6 +553,8 @@ public class BigIntOffsetTest
     public void TestConversionUlong(ulong value)
     {
         var bio = new BigIntegerOffset(value);
+        Assert.True(value == bio);
+        Assert.False(value != bio);
 
         var reUlong = bio.ToUInt64(null);
         Assert.Equal(value, reUlong);
@@ -589,6 +610,8 @@ public class BigIntOffsetTest
     public void TestConversionLong(long value)
     {
         var bio = new BigIntegerOffset(value);
+        Assert.True(value == bio);
+        Assert.False(value != bio);
 
         var reUlong = bio.ToInt64(null);
         Assert.Equal(value, reUlong);
@@ -614,6 +637,165 @@ public class BigIntOffsetTest
             sbyte valueCasted = (sbyte)value;
             sbyte reUshort = bio.ToSByte(null);
             Assert.Equal(valueCasted, reUshort);
+        }
+    }
+
+    [Fact]
+    public void ToBooleanTest()
+    {
+        var values = new decimal[]
+        {
+            -10m,
+            -1m,
+            -0.5m,
+            0,
+            0.5m,
+            1m,
+            10m,
+        };
+
+        foreach (var value in values)
+        {
+            var u = (value > 0m);
+            var bio = new BigIntegerOffset(value);
+            Assert.Equal(u, bio.ToBoolean(null));
+        }
+    }
+
+    #endregion
+
+    #region Convert decimal
+
+    public static object[][] TestConvertDecimalData()
+    {
+        var values = new decimal[]
+        {
+            0m,
+            2m,
+            1_234_567_890m,
+            1000.0001m,
+            0.1m,
+            0.000_000_1m,
+            0.000_000_000_000_1m,
+            0.100_1m,
+            0.100_000_1m,
+            0.100_000_001m,
+            0.100_000_000_001m,
+            0.100_000_000_000_001m,
+            0.100_000_000_000_000_001m,
+            0.100_2m,
+            0.100_000_2m,
+            0.100_000_002m,
+            0.100_000_000_002m,
+            0.100_000_000_000_002m,
+            0.100_000_000_000_000_002m,
+            0.3m,
+            0.03m,
+            0.003m,
+            0.000_3m,
+            0.000_03m,
+            0.000_003m,
+            0.000_000_3m,
+            0.000_000_03m,
+            0.000_000_003m,
+            0.000_000_000_3m,
+            1_234_567_890.000_000_000_000_1m,
+            3.7m,
+        };
+
+        return values
+            .Concat(values.Where(x => x > 0).Select(t => -t))
+            .Select(t => new object[] { t })
+            .ToArray();
+    }
+
+    public static object[][] TestConvertDoubleData()
+    {
+        return TestConvertDecimalData()
+            .Select(t =>
+            {
+                var value = (decimal)t[0];
+                // ReSharper disable once ConvertIfStatementToReturnStatement
+                if (Math.Abs(value).ToString(CultureInfo.InvariantCulture).Length > 18)
+                {
+                    return null;
+                }
+
+                return t;
+            })
+            .Where(x => x is not null)
+            .ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDecimalData))]
+    public void StringifyDecimal(decimal rawValue)
+    {
+        var valueBio1 = new BigIntegerOffset(rawValue);
+        var stringify = valueBio1.ToStringDouble();
+        var valueBio2 = BigIntegerOffset.Parse(stringify);
+        Assert.Equal(valueBio1, valueBio2);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDecimalData))]
+    public void TestConvertDecimal(decimal rawValue)
+    {
+        var valueBio = new BigIntegerOffset(rawValue);
+        var valueString = valueBio.ToString();
+        var decimalRevert1 = (decimal)valueBio;
+        var decimalRevert2 = decimal.Parse(valueString);
+        var decimalRevert3 = valueBio.ToDecimal(null);
+
+        Assert.Equal(rawValue, decimalRevert1);
+        Assert.Equal(rawValue, decimalRevert2);
+        Assert.Equal(rawValue, decimalRevert3);
+
+        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        Assert.Equal(valueBio, valueBio2);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConvertDoubleData))]
+    public void TestConvertDouble(decimal preRawValue)
+    {
+        var rawValue = (double)preRawValue;
+
+        //
+        var valueBio = new BigIntegerOffset(rawValue);
+        var valueString = valueBio.ToString();
+        var decimalRevert1 = (decimal)valueBio;
+        var decimalRevert2 = decimal.Parse(valueString);
+        var decimalRevert1a = valueBio.ToDouble(null);
+
+        Assert.Equal(preRawValue, decimalRevert1);
+        Assert.Equal(preRawValue, decimalRevert2);
+        Assert.InRange(decimalRevert1a, rawValue - 0.000000001d, rawValue + 0.000000001d);
+
+        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        Assert.Equal(valueBio, valueBio2);
+    }
+
+    [Fact]
+    public void TestConvertDoubleCycle()
+    {
+        for (var value = 0; value < 1000; value++)
+        {
+            for (var offset1 = 0; offset1 < 3; offset1++)
+            {
+                var pow1 = Enumerable
+                    .Repeat(10m, offset1)
+                    .Aggregate(1m, (a, b) => a * b);
+
+                for (var offset2 = 0; offset2 < 7; offset2++)
+                {
+                    var pow2 = Enumerable
+                        .Repeat(0.1m, offset2)
+                        .Aggregate(1m, (a, b) => a * b);
+                    decimal valueDecimal = (value * pow1) * pow2;
+                    TestConvertDouble(valueDecimal);
+                }
+            }
         }
     }
 

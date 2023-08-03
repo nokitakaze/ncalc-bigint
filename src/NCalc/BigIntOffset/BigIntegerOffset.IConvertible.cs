@@ -21,12 +21,12 @@ namespace NCalc.BigIntOffset
 
         public char ToChar(IFormatProvider provider)
         {
-            return (char)(long)this;
+            throw new BigIntegerOffsetException("Can't type cast BigIntegerOffset to char");
         }
 
         public DateTime ToDateTime(IFormatProvider provider)
         {
-            throw new NotImplementedException();
+            throw new BigIntegerOffsetException("Can't type cast BigIntegerOffset to DateTime");
         }
 
         public decimal ToDecimal(IFormatProvider provider)
