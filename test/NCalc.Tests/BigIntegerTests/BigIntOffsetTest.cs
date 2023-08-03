@@ -1010,5 +1010,38 @@ public class BigIntOffsetTest
         Assert.False(delimResultBI != delimBI);
     }
 
+    [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
+    public static object[][] TestBigInteger1ConversionData()
+    {
+        var items = new BigInteger[]
+        {
+            1,
+            7,
+            -7,
+            31,
+            -31,
+            100_500,
+            BigInteger.Parse("1234567890123456789"),
+            BigInteger.Parse("12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+            -BigInteger.Parse("12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+        };
+
+        return items.Select(t => new object[] { t }).ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestBigInteger1ConversionData))]
+    public void TestBigInteger1Conversion(BigInteger operand)
+    {
+        var value = new BigIntegerOffset(operand);
+        var value01 = new BigIntegerOffset(0.1m);
+
+        Assert.True(value != 0.1m);
+        Assert.False(value == 0.1m);
+        Assert.True(value != value01);
+        Assert.False(value == value01);
+        Assert.NotEqual(value01, value);
+    }
+
     #endregion
 }
