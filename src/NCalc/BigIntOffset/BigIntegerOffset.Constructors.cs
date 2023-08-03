@@ -151,13 +151,52 @@ namespace NCalc.BigIntOffset
             var bio = Parse(valueStringify);
             if (valueStringifyLength + addExp >= 18)
             {
-                if (bio.Value % 1000 == 1)
+                // TODO It is more correct to do via IEEE-754 mantissa size
+
                 {
-                    bio.Value--;
+                    var mod1_000_000 = bio.Value % 1_000_000;
+                    if (mod1_000_000 == 0)
+                    {
+                    }
+                    else if (mod1_000_000 <= 15)
+                    {
+                        bio.Value -= mod1_000_000;
+                    }
+                    else if (mod1_000_000 >= 1_000_000 - 15)
+                    {
+                        bio.Value += 1_000_000 - mod1_000_000;
+                    }
                 }
-                else if (bio.Value % 1000 >= 995)
+
                 {
-                    bio.Value += 1000 - (bio.Value % 1000);
+                    var mod10000 = bio.Value % 10_000;
+                    if (mod10000 == 0)
+                    {
+                    }
+                    else if (mod10000 <= 10)
+                    {
+                        bio.Value -= mod10000;
+                    }
+                    else if (mod10000 >= 10_000 - 10)
+                    {
+                        bio.Value += 10_000 - mod10000;
+                    }
+                }
+
+
+                {
+                    var mod1000 = bio.Value % 1000;
+                    if (mod1000 == 0)
+                    {
+                    }
+                    else if (mod1000 <= 3)
+                    {
+                        bio.Value -= mod1000;
+                    }
+                    else if (mod1000 >= 1000 - 3)
+                    {
+                        bio.Value += 1000 - mod1000;
+                    }
                 }
             }
 

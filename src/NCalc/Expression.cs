@@ -314,7 +314,6 @@ namespace NCalc
 
             ParsedExpression.Accept(visitor);
             return visitor.Result;
-
         }
 
         public event EvaluateFunctionHandler EvaluateFunction;

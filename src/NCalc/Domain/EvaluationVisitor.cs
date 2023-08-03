@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using NCalc.BigIntOffset;
 
 namespace NCalc.Domain
 {
@@ -135,9 +136,21 @@ namespace NCalc.Domain
                     break;
 
                 case BinaryExpressionType.Div:
-                    Result = IsReal(left()) || IsReal(right())
-                                 ? Numbers.Divide(left(), right(), _cultureInfo)
-                                 : Numbers.Divide(Convert.ToDouble(left(), _cultureInfo), right(), _cultureInfo);
+                    left();
+                    right();
+                    if (IsReal(leftValue) || IsReal(rightValue))
+                    {
+                        Result = Numbers.Divide(leftValue, rightValue, _cultureInfo);
+                    }
+                    else if ((leftValue is BigIntegerOffset) || (rightValue is BigIntegerOffset))
+                    {
+                        Result = Numbers.Divide(leftValue, rightValue, _cultureInfo);
+                    }
+                    else
+                    {
+                        Result = Numbers.Divide(Convert.ToDouble(leftValue, _cultureInfo), rightValue, _cultureInfo);
+                    }
+
                     break;
 
                 case BinaryExpressionType.Equal:
@@ -181,7 +194,7 @@ namespace NCalc.Domain
                 case BinaryExpressionType.Plus:
                     if (left() is string)
                     {
-                        Result = String.Concat(left(), right());
+                        Result = string.Concat(left(), right());
                     }
                     else
                     {

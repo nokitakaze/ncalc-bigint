@@ -89,20 +89,6 @@ public class CompositeTests
             })
             .Where(x => x.a is not null)
             .Where(x => (x.a is BigIntegerOffset) || (x.b is BigIntegerOffset))
-            .Where(x =>
-            {
-                if (!((x.a is BigIntegerOffset) && (x.b is BigInteger)))
-                {
-                    return false;
-                }
-
-                if (x.expected is BigIntegerOffset expected)
-                {
-                    return expected == new BigIntegerOffset(0.22m);
-                }
-
-                return false;
-            }) // todo delme
             .ToArray();
 
         return divisionTests;
@@ -161,7 +147,6 @@ public class CompositeTests
             .ToArray();
 
         return firstTests
-            .Take(0) // todo delme
             .Concat(MathOperationsData_Division())
             .Select(t => new object[] { t.a, t.b, t.expr, t.expected })
             .Where(x => (x[0] is BigInteger) || (x[0] is BigIntOffset.BigIntegerOffset) ||
@@ -455,6 +440,7 @@ public class CompositeTests
             0.000_000_003m,
             0.000_000_000_3m,
             1_234_567_890.000_000_000_000_1m,
+            3.7m,
         };
 
         return values
@@ -526,34 +512,28 @@ public class CompositeTests
         Assert.Equal(valueBio, valueBio2);
     }
 
-    #endregion
-
     [Fact]
-    public void Delme()
+    public void TestConvertDoubleCycle()
     {
-        // todo delme
-        var x = new BigIntegerOffset(1.1m);
-        var y = new BigInteger(5);
-        var expected = new BigIntegerOffset(1.1m / 5);
-
-        var e = new NCalc.Expression("x / y");
-        e.EvaluateParameter += delegate(string name, ParameterArgs args)
+        for (var value = 0; value < 1000; value++)
         {
-            args.Result = name switch
+            for (var offset1 = 0; offset1 < 3; offset1++)
             {
-                "x" => x,
-                "y" => y,
-                _ => args.Result
-            };
-        };
+                var pow1 = Enumerable
+                    .Repeat(10m, offset1)
+                    .Aggregate(1m, (a, b) => a * b);
 
-        object actual = e.Evaluate();
-        if (actual is not BigIntegerOffset actualBIO)
-        {
-            Assert.Fail();
-            return;
+                for (var offset2 = 0; offset2 < 7; offset2++)
+                {
+                    var pow2 = Enumerable
+                        .Repeat(0.1m, offset2)
+                        .Aggregate(1m, (a, b) => a * b);
+                    decimal valueDecimal = (value * pow1) * pow2;
+                    TestConvertDouble(valueDecimal);
+                }
+            }
         }
-
-        Assert.Equal(expected, actualBIO);
     }
+
+    #endregion
 }
