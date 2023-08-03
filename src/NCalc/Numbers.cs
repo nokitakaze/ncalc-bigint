@@ -399,7 +399,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aDecimal) + bBigInteger;
                         case BigIntegerOffset bBigIntegerOffset:
-                            return new BigIntegerOffset(aDecimal) + bBigIntegerOffset;
+                            return aDecimal + bBigIntegerOffset;
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '+' can't be applied to operands of types 'decimal' and '{b.GetType()}'");
@@ -461,7 +461,7 @@ namespace NCalc
                         case double bDouble:
                             return aBigIntegerOffset + bDouble;
                         case decimal bDecimal:
-                            return aBigIntegerOffset + new BigIntegerOffset(bDecimal);
+                            return aBigIntegerOffset + bDecimal;
                         case BigInteger bBigInteger:
                             return aBigIntegerOffset + bBigInteger;
                         case BigIntegerOffset bBigIntegerOffset:
@@ -857,7 +857,7 @@ namespace NCalc
                         case BigInteger bBigInteger:
                             return new BigInteger(aDecimal) - bBigInteger;
                         case BigIntegerOffset bBigIntegerOffset:
-                            return new BigIntegerOffset(aDecimal) - bBigIntegerOffset;
+                            return aDecimal - bBigIntegerOffset;
                         default:
                             throw new InvalidOperationException(
                                 $"Operator '-' can't be applied to operands of types 'decimal' and '{b.GetType()}'");

@@ -55,12 +55,12 @@ namespace NCalc.BigIntOffset
         {
             if (a is null)
             {
-                throw new BigIntegerOffsetException("First operand in Equal is null");
+                return false;
             }
 
             if (b is null)
             {
-                throw new BigIntegerOffsetException("Second operand in Equal is null");
+                return false;
             }
 
             a.NormalizeOffset();
@@ -139,19 +139,6 @@ namespace NCalc.BigIntOffset
             {
                 return (a.Value >= 0);
             }
-
-            /*
-            var antiNega = (a.Value < 0);
-
-            var aEntier = a.Value / a.OffsetPower;
-            var bEntier = b.Value / b.OffsetPower;
-
-            if (aEntier != bEntier)
-            {
-                var u = aEntier > bEntier;
-                return antiNega ? u : !u;
-            }
-            */
 
             return (a - b).Value > 0;
         }
@@ -427,13 +414,10 @@ namespace NCalc.BigIntOffset
             var newOffset = result._offset - b._offset;
             if (newOffset < 0)
             {
-                result.Offset = 0;
-                result.Value *= BigInteger.Pow(BigInteger10, -newOffset);
+                throw new BigIntegerOffsetException("Precision from arguments didn't apply to result");
             }
-            else
-            {
-                result.Offset = newOffset;
-            }
+
+            result.Offset = newOffset;
 
             result.NormalizeOffset();
             return result;

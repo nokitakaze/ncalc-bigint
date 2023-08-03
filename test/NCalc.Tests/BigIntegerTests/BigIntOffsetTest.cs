@@ -446,4 +446,176 @@ public class BigIntOffsetTest
     }
 
     #endregion
+
+    #region exceptions
+
+    [Fact]
+    public void ParseMultiDotString()
+    {
+        Assert.Throws<BigIntegerOffsetException>(() => { BigIntegerOffset.Parse("123.321.11"); });
+    }
+
+    [Fact]
+    public void DivisionByZero()
+    {
+        Assert.Throws<BigIntegerOffsetException>(() =>
+        {
+            var _ = BigIntegerOffset.One / BigIntegerOffset.Zero;
+        });
+    }
+
+    #endregion
+
+    #region different small tests
+
+    [Fact]
+    public void EqualWithNullViaOperator()
+    {
+        Assert.False(BigIntegerOffset.One == null);
+        Assert.True(BigIntegerOffset.One != null);
+        Assert.False(null == BigIntegerOffset.One);
+        Assert.True(null != BigIntegerOffset.One);
+    }
+
+    [Fact]
+    public void EqualWithNull()
+    {
+        Assert.False(BigIntegerOffset.One.Equals(null));
+    }
+
+    [Fact]
+    public void EqualWithBigInt()
+    {
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        Assert.False(BigIntegerOffset.One.Equals(BigInteger.One));
+    }
+
+    #endregion
+
+    #region conversion
+
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    public static object[][] TestConversionUlongData()
+    {
+        var values = new ulong[]
+        {
+            0,
+            (ulong)sbyte.MaxValue - 1,
+            (ulong)sbyte.MaxValue,
+            (ulong)sbyte.MaxValue + 1,
+            byte.MaxValue - (ulong)1,
+            byte.MaxValue,
+            byte.MaxValue + (ulong)1,
+            (ulong)short.MaxValue - 1,
+            (ulong)short.MaxValue,
+            (ulong)short.MaxValue + 1,
+            ushort.MaxValue - (ulong)1,
+            ushort.MaxValue,
+            ushort.MaxValue + (ulong)1,
+            (ulong)int.MaxValue - 1,
+            (ulong)int.MaxValue,
+            (ulong)int.MaxValue + 1,
+            uint.MaxValue - 1,
+            uint.MaxValue,
+            uint.MaxValue + (ulong)1,
+            (ulong)long.MaxValue - 1,
+            (ulong)long.MaxValue,
+            (ulong)long.MaxValue + 1,
+            ulong.MaxValue - 1,
+            ulong.MaxValue,
+        };
+
+        return values.Select(t => new object[] { t }).ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConversionUlongData))]
+    [SuppressMessage("ReSharper", "InvertIf")]
+    public void TestConversionUlong(ulong value)
+    {
+        var bio = new BigIntegerOffset(value);
+
+        var reUlong = bio.ToUInt64(null);
+        Assert.Equal(value, reUlong);
+        reUlong = (ulong)bio;
+        Assert.Equal(value, reUlong);
+
+        if (value <= uint.MaxValue)
+        {
+            uint valueCasted = (uint)value;
+            uint reUint = bio.ToUInt32(null);
+            Assert.Equal(valueCasted, reUint);
+        }
+
+        if (value <= ushort.MaxValue)
+        {
+            ushort valueCasted = (ushort)value;
+            ushort reUshort = bio.ToUInt16(null);
+            Assert.Equal(valueCasted, reUshort);
+        }
+
+        if (value <= byte.MaxValue)
+        {
+            byte valueCasted = (byte)value;
+            byte reUshort = bio.ToByte(null);
+            Assert.Equal(valueCasted, reUshort);
+        }
+    }
+
+    public static object[][] TestConversionLongData()
+    {
+        var values = new long[]
+        {
+            0,
+            sbyte.MaxValue - (long)1,
+            sbyte.MaxValue,
+            sbyte.MaxValue + (long)1,
+            short.MaxValue - (long)1,
+            short.MaxValue,
+            short.MaxValue + (long)1,
+            int.MaxValue - 1,
+            int.MaxValue,
+            int.MaxValue + (long)1,
+            long.MaxValue - 1,
+            long.MaxValue,
+        };
+
+        return values.Select(t => new object[] { t }).ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestConversionLongData))]
+    [SuppressMessage("ReSharper", "InvertIf")]
+    public void TestConversionLong(long value)
+    {
+        var bio = new BigIntegerOffset(value);
+
+        var reUlong = bio.ToInt64(null);
+        Assert.Equal(value, reUlong);
+        reUlong = (long)bio;
+        Assert.Equal(value, reUlong);
+
+        if (value is >= int.MinValue and <= int.MaxValue)
+        {
+            int valueCasted = (int)value;
+            int reUint = bio.ToInt32(null);
+            Assert.Equal(valueCasted, reUint);
+        }
+
+        if (value is >= short.MinValue and <= short.MaxValue)
+        {
+            short valueCasted = (short)value;
+            short reUshort = bio.ToInt16(null);
+            Assert.Equal(valueCasted, reUshort);
+        }
+
+        if (value is >= sbyte.MinValue and <= sbyte.MaxValue)
+        {
+            sbyte valueCasted = (sbyte)value;
+            sbyte reUshort = bio.ToSByte(null);
+            Assert.Equal(valueCasted, reUshort);
+        }
+    }
+
+    #endregion
 }
