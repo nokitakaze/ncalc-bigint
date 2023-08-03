@@ -197,11 +197,6 @@ public class CompositeTests
             };
         };
 
-        if ((expr == "y + x") && (x.value is 1.1d) && (y.value is BigIntegerOffset Y1) && (Y1 == 5))
-        {
-            Debugger.Break();
-        }
-
         object actual = e.Evaluate();
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (actual is BigIntOffset.BigIntegerOffset actualBIO)

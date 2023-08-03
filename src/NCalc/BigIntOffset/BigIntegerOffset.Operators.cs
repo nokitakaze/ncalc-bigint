@@ -84,6 +84,36 @@ namespace NCalc.BigIntOffset
             return !(a == b);
         }
 
+        public static bool operator ==(BigIntegerOffset a, decimal b)
+        {
+            return a == new BigIntegerOffset(b);
+        }
+
+        public static bool operator !=(BigIntegerOffset a, decimal b)
+        {
+            return !(a == b);
+        }
+
+        public static bool operator ==(BigIntegerOffset a, long b)
+        {
+            return a == new BigIntegerOffset(b);
+        }
+
+        public static bool operator !=(BigIntegerOffset a, long b)
+        {
+            return !(a == b);
+        }
+
+        public static bool operator ==(decimal b, BigIntegerOffset a)
+        {
+            return a == new BigIntegerOffset(b);
+        }
+
+        public static bool operator !=(decimal b, BigIntegerOffset a)
+        {
+            return !(a == b);
+        }
+
         #endregion
 
         #region operator +-
@@ -300,6 +330,66 @@ namespace NCalc.BigIntOffset
         public static BigIntegerOffset operator *(BigIntegerOffset a, double b)
         {
             return a * new BigIntegerOffset(b);
+        }
+
+        #endregion
+
+        #region operator /
+
+        public static BigIntegerOffset operator /(BigIntegerOffset a, BigIntegerOffset b)
+        {
+            if (a == Zero)
+            {
+                return Zero;
+            }
+
+            if (b == Zero)
+            {
+                throw new BigIntegerOffsetException("Division by zero");
+            }
+
+            if (b == One)
+            {
+                return a;
+            }
+
+            if (a == b)
+            {
+                return One;
+            }
+
+            var result = new BigIntegerOffset(a);
+            if (result._offset < result.MaxPrecision)
+            {
+                var addExp = result.MaxPrecision - result._offset;
+                result.Value *= BigInteger.Pow(BigInteger10, addExp);
+                result.Offset = result.MaxPrecision;
+            }
+
+            result.Value /= b.Value;
+            var newOffset = result._offset - b._offset;
+            if (newOffset < 0)
+            {
+                result.Offset = 0;
+                result.Value *= BigInteger.Pow(BigInteger10, -newOffset);
+            }
+            else
+            {
+                result.Offset = newOffset;
+            }
+
+            result.NormalizeOffset();
+            return result;
+        }
+
+        public static BigIntegerOffset operator /(BigIntegerOffset a, BigInteger b)
+        {
+            return a / new BigIntegerOffset(b);
+        }
+
+        public static BigIntegerOffset operator /(BigInteger a, BigIntegerOffset b)
+        {
+            return new BigIntegerOffset(a) / b;
         }
 
         #endregion

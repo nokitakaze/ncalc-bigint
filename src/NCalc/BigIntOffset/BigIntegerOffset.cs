@@ -5,7 +5,7 @@ namespace NCalc.BigIntOffset
     public partial class BigIntegerOffset
     {
         public const int MaxDefaultPrecision = 18;
-        public int MaxPrecision = MaxDefaultPrecision;
+        public readonly int MaxPrecision = MaxDefaultPrecision;
         public static readonly BigIntegerOffset One = new BigIntegerOffset(1);
         public static readonly BigIntegerOffset Zero = new BigIntegerOffset(0);
 

@@ -10,6 +10,14 @@ namespace NCalc.BigIntOffset
         {
             Value = value.Value;
             Offset = value.Offset;
+            MaxPrecision = value.MaxPrecision;
+        }
+
+        public BigIntegerOffset(BigIntegerOffset value, int maxPrecision)
+        {
+            Value = value.Value;
+            Offset = value.Offset;
+            MaxPrecision = maxPrecision;
         }
 
         public BigIntegerOffset(BigInteger value)
@@ -62,6 +70,11 @@ namespace NCalc.BigIntOffset
             Value = tailResult + (new BigInteger(decEntier)) * OffsetPower;
             Value *= sign;
             this.NormalizeOffset();
+        }
+
+        public BigIntegerOffset(decimal value, int maxPrecision) : this(value)
+        {
+            MaxPrecision = maxPrecision;
         }
 
         // TODO Для дабла должен быть более сложный конструктор
