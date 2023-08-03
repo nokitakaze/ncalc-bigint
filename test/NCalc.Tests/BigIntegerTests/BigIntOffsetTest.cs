@@ -154,6 +154,9 @@ public class BigIntOffsetTest
 
         Assert.Equal(new BigIntegerOffset(expected), actual);
         Assert.True(actual == expected);
+        Assert.True(expected == actual);
+        Assert.False(actual != expected);
+        Assert.False(expected != actual);
     }
 
     #endregion
@@ -511,7 +514,7 @@ public class BigIntOffsetTest
 
     #endregion
 
-    #region conversion
+    #region conversion long/ulong
 
     [SuppressMessage("ReSharper", "RedundantCast")]
     public static object[][] TestConversionUlongData()
@@ -558,6 +561,8 @@ public class BigIntOffsetTest
 
         var reUlong = bio.ToUInt64(null);
         Assert.Equal(value, reUlong);
+        reUlong = (ulong)bio.ToType(typeof(ulong), null);
+        Assert.Equal(value, reUlong);
         reUlong = (ulong)bio;
         Assert.Equal(value, reUlong);
 
@@ -566,6 +571,8 @@ public class BigIntOffsetTest
             uint valueCasted = (uint)value;
             uint reUint = bio.ToUInt32(null);
             Assert.Equal(valueCasted, reUint);
+            reUint = (uint)bio.ToType(typeof(uint), null);
+            Assert.Equal(valueCasted, reUint);
         }
 
         if (value <= ushort.MaxValue)
@@ -573,13 +580,17 @@ public class BigIntOffsetTest
             ushort valueCasted = (ushort)value;
             ushort reUshort = bio.ToUInt16(null);
             Assert.Equal(valueCasted, reUshort);
+            reUshort = (ushort)bio.ToType(typeof(ushort), null);
+            Assert.Equal(valueCasted, reUshort);
         }
 
         if (value <= byte.MaxValue)
         {
             byte valueCasted = (byte)value;
-            byte reUshort = bio.ToByte(null);
-            Assert.Equal(valueCasted, reUshort);
+            byte reByte = bio.ToByte(null);
+            Assert.Equal(valueCasted, reByte);
+            reByte = (byte)bio.ToType(typeof(byte), null);
+            Assert.Equal(valueCasted, reByte);
         }
     }
 
@@ -613,30 +624,38 @@ public class BigIntOffsetTest
         Assert.True(value == bio);
         Assert.False(value != bio);
 
-        var reUlong = bio.ToInt64(null);
-        Assert.Equal(value, reUlong);
-        reUlong = (long)bio;
-        Assert.Equal(value, reUlong);
+        var reLong = bio.ToInt64(null);
+        Assert.Equal(value, reLong);
+        reLong = (long)bio.ToType(typeof(long), null);
+        Assert.Equal(value, reLong);
+        reLong = (long)bio;
+        Assert.Equal(value, reLong);
 
         if (value is >= int.MinValue and <= int.MaxValue)
         {
             int valueCasted = (int)value;
-            int reUint = bio.ToInt32(null);
-            Assert.Equal(valueCasted, reUint);
+            int reInt = bio.ToInt32(null);
+            Assert.Equal(valueCasted, reInt);
+            reInt = (int)bio.ToType(typeof(int), null);
+            Assert.Equal(valueCasted, reInt);
         }
 
         if (value is >= short.MinValue and <= short.MaxValue)
         {
             short valueCasted = (short)value;
-            short reUshort = bio.ToInt16(null);
-            Assert.Equal(valueCasted, reUshort);
+            short reShort = bio.ToInt16(null);
+            Assert.Equal(valueCasted, reShort);
+            reShort = (short)bio.ToType(typeof(short), null);
+            Assert.Equal(valueCasted, reShort);
         }
 
         if (value is >= sbyte.MinValue and <= sbyte.MaxValue)
         {
             sbyte valueCasted = (sbyte)value;
-            sbyte reUshort = bio.ToSByte(null);
-            Assert.Equal(valueCasted, reUshort);
+            sbyte reSbyte = bio.ToSByte(null);
+            Assert.Equal(valueCasted, reSbyte);
+            reSbyte = (sbyte)bio.ToType(typeof(sbyte), null);
+            Assert.Equal(valueCasted, reSbyte);
         }
     }
 
@@ -742,7 +761,7 @@ public class BigIntOffsetTest
     public void TestConvertDecimal(decimal rawValue)
     {
         var valueBio = new BigIntegerOffset(rawValue);
-        var valueString = valueBio.ToString();
+        var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1 = (decimal)valueBio;
         var decimalRevert2 = decimal.Parse(valueString);
         var decimalRevert3 = valueBio.ToDecimal(null);
@@ -753,6 +772,21 @@ public class BigIntOffsetTest
 
         var valueBio2 = BigIntegerOffset.Parse(valueString);
         Assert.Equal(valueBio, valueBio2);
+
+        //
+        Assert.True(rawValue == valueBio);
+        Assert.False(rawValue != valueBio);
+        Assert.True(valueBio == rawValue);
+        Assert.False(valueBio != rawValue);
+
+        if (rawValue == (long)rawValue)
+        {
+            var rawValueLong = (long)rawValue;
+            Assert.True(valueBio == rawValueLong);
+            Assert.False(valueBio != rawValueLong);
+            Assert.True(rawValueLong == valueBio);
+            Assert.False(rawValueLong != valueBio);
+        }
     }
 
     [Theory]
@@ -763,7 +797,7 @@ public class BigIntOffsetTest
 
         //
         var valueBio = new BigIntegerOffset(rawValue);
-        var valueString = valueBio.ToString();
+        var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1 = (decimal)valueBio;
         var decimalRevert2 = decimal.Parse(valueString);
         var decimalRevert1a = valueBio.ToDouble(null);
@@ -797,6 +831,108 @@ public class BigIntOffsetTest
                 }
             }
         }
+    }
+
+    #endregion
+
+    #region Culture ToString
+
+    public static object[][] TestCultureData()
+    {
+        var russiaCulture = CultureInfo.GetCultureInfo("ru-RU");
+        var usaCulture = CultureInfo.GetCultureInfo("en-US");
+
+        var items = new (decimal value, CultureInfo cultureInfo, string expectedString)[]
+        {
+            (1.1m, null, "1.1"),
+            (1.1m, CultureInfo.InvariantCulture, "1.1"),
+            (1.1m, usaCulture, "1.1"),
+            (1.1m, russiaCulture, "1,1"),
+            (-1.1m, null, "-1.1"),
+            (-1.1m, CultureInfo.InvariantCulture, "-1.1"),
+            (-1.1m, russiaCulture, "-1,1"),
+            (1.00001m, null, "1.00001"),
+            (1.00001m, CultureInfo.InvariantCulture, "1.00001"),
+            (1.00001m, russiaCulture, "1,00001"),
+        };
+
+        return items
+            .Select(t => new object[] { t.value, t.cultureInfo, t.expectedString })
+            .ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestCultureData))]
+    public void TestCulture(decimal value, CultureInfo cultureInfo, string expectedString)
+    {
+        var decimalActual = value.ToString(cultureInfo);
+        Assert.Equal(decimalActual, expectedString);
+
+        //
+        var bio = new BigIntegerOffset(value);
+        var actual1 = bio.ToString(cultureInfo);
+        var actual2 = bio.ToStringDouble(cultureInfo);
+
+        Assert.Equal(expectedString, actual1);
+        Assert.Equal(expectedString, actual2);
+    }
+
+    #endregion
+
+    #region
+
+    [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
+    public static object[][] TestBigIntegerConversionData()
+    {
+        var items = new BigInteger[]
+        {
+            1,
+            7,
+            -7,
+            31,
+            -31,
+            100_500,
+            BigInteger.Parse("1234567890123456789"),
+            BigInteger.Parse("12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+            -BigInteger.Parse("12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+        };
+
+        var result = new List<object[]>();
+        foreach (var hiddenArg in items)
+        {
+            foreach (var operand2 in items)
+            {
+                var operand1 = hiddenArg * operand2;
+                result.Add(new object[] { operand1, operand1 });
+            }
+        }
+
+        return result.ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestBigIntegerConversionData))]
+    public void TestBigIntegerConversion(
+        BigInteger operand1,
+        BigInteger operand2
+    )
+    {
+        var arg1 = new BigIntegerOffset(operand1);
+        var arg2 = new BigIntegerOffset(operand2);
+
+        Assert.True(arg1 == operand1);
+        Assert.False(arg1 != operand1);
+        Assert.True(arg2 == operand2);
+        Assert.False(arg2 != operand2);
+
+        var delimBI = operand1 / operand2;
+
+        var delimResultBI = arg1 / arg2;
+        var delimResultBIO = new BigIntegerOffset(delimBI);
+        Assert.Equal(delimResultBI, delimResultBIO);
+        Assert.True(delimResultBIO == delimBI);
+        Assert.True(delimResultBI == delimBI);
+        Assert.False(delimResultBI != delimBI);
     }
 
     #endregion

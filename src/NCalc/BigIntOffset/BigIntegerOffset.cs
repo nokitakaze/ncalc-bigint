@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Numerics;
 
 namespace NCalc.BigIntOffset
@@ -65,7 +66,7 @@ namespace NCalc.BigIntOffset
             }
         }
 
-        public string ToStringDouble()
+        public string ToStringDouble(CultureInfo cultureInfo = null)
         {
             if (_offset == 0)
             {
@@ -91,18 +92,28 @@ namespace NCalc.BigIntOffset
                 _value /= BigInteger10;
             }
 
-            return $"{sign}{vEntier}.{vTailString}";
+            string separator = ".";
+            if (cultureInfo != null)
+            {
+                separator = cultureInfo.NumberFormat.NumberDecimalSeparator;
+            }
+
+            return $"{sign}{vEntier}{separator}{vTailString}";
         }
 
         public override string ToString()
         {
-            return ToStringDouble();
+            return ToStringDouble(CultureInfo.InvariantCulture);
         }
 
         public string ToString(IFormatProvider provider)
         {
-            var a = provider.ToString();
-            throw new NotImplementedException();
+            if (provider is CultureInfo cultureInfo)
+            {
+                return ToStringDouble(cultureInfo);
+            }
+
+            return ToStringDouble();
         }
 
         public static BigIntegerOffset Parse(string value)

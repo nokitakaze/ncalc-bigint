@@ -66,7 +66,50 @@ namespace NCalc.BigIntOffset
 
         public object ToType(Type conversionType, IFormatProvider provider)
         {
-            throw new NotImplementedException();
+            if (conversionType == typeof(ulong))
+            {
+                return this.ToUInt64(provider);
+            }
+            else if (conversionType == typeof(long))
+            {
+                return this.ToInt64(provider);
+            }
+            else if (conversionType == typeof(uint))
+            {
+                return this.ToUInt32(provider);
+            }
+            else if (conversionType == typeof(int))
+            {
+                return this.ToInt32(provider);
+            }
+            else if (conversionType == typeof(ushort))
+            {
+                return this.ToUInt16(provider);
+            }
+            else if (conversionType == typeof(short))
+            {
+                return this.ToInt16(provider);
+            }
+            else if (conversionType == typeof(byte))
+            {
+                return this.ToByte(provider);
+            }
+            else if (conversionType == typeof(sbyte))
+            {
+                return this.ToSByte(provider);
+            }
+            else if (conversionType == typeof(decimal))
+            {
+                return this.ToDecimal(provider);
+            }
+            else if (conversionType == typeof(double))
+            {
+                return this.ToDouble(provider);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public ushort ToUInt16(IFormatProvider provider)
