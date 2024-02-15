@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using NCalc.BigIntOffset;
+using InfiniteDecimal;
 
 namespace NCalc.Domain
 {
@@ -142,7 +142,7 @@ namespace NCalc.Domain
                     {
                         Result = Numbers.Divide(leftValue, rightValue, _cultureInfo);
                     }
-                    else if ((leftValue is BigIntegerOffset) || (rightValue is BigIntegerOffset))
+                    else if ((leftValue is BigDec) || (rightValue is BigDec))
                     {
                         Result = Numbers.Divide(leftValue, rightValue, _cultureInfo);
                     }

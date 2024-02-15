@@ -11,3 +11,4 @@ obj/
 *.bak
 
 /NCalcUnitTestCoverage.xml
+/*.DotSettings.user
