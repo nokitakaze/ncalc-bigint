@@ -6,12 +6,12 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
-using NCalc.BigIntOffset;
+using InfiniteDecimal;
 using Xunit;
 
 namespace NCalc.Tests.BigIntegerTests;
 
-public class BigIntOffsetTest
+public class BigDecTest
 {
     #region Equality
 
@@ -39,11 +39,11 @@ public class BigIntOffsetTest
 
         for (var i = 0; i < rawValues.Length; i++)
         {
-            var operand1 = new BigIntegerOffset(rawValues[i]);
+            var operand1 = new BigDec(rawValues[i]);
 
             for (var j = 0; j < rawValues.Length; j++)
             {
-                var operand2 = new BigIntegerOffset(rawValues[j]);
+                var operand2 = new BigDec(rawValues[j]);
 
                 if (i == j)
                 {
@@ -128,8 +128,8 @@ public class BigIntOffsetTest
             })
             .Select(t => new object[]
             {
-                new BigIntegerOffset(t.operand1),
-                new BigIntegerOffset(t.operand2),
+                new BigDec(t.operand1),
+                new BigDec(t.operand2),
                 t.operand1 / t.operand2,
             })
             .ToArray();
@@ -149,11 +149,11 @@ public class BigIntOffsetTest
 
     [Theory]
     [MemberData(nameof(TestDivisionData))]
-    public void TestDivision(BigIntegerOffset a, BigIntegerOffset b, decimal expected)
+    public void TestDivision(BigDec a, BigDec b, decimal expected)
     {
         var actual = a / b;
 
-        Assert.Equal(new BigIntegerOffset(expected), actual);
+        Assert.Equal(new BigDec(expected), actual);
         Assert.True(actual == expected);
         Assert.True(expected == actual);
         Assert.False(actual != expected);
@@ -167,14 +167,14 @@ public class BigIntOffsetTest
     {
         var bi10 = new BigInteger(10);
 
-        var valueField = typeof(BigIntegerOffset)
+        var valueField = typeof(BigDec)
             .GetField("Value", BindingFlags.NonPublic | BindingFlags.Instance);
         if (valueField is null)
         {
             throw new Exception();
         }
 
-        var offsetField = typeof(BigIntegerOffset)
+        var offsetField = typeof(BigDec)
             .GetField("_offset", BindingFlags.NonPublic | BindingFlags.Instance);
         if (offsetField is null)
         {
@@ -183,7 +183,7 @@ public class BigIntOffsetTest
 
         for (var exp1 = -30; exp1 <= 30; exp1++)
         {
-            BigIntegerOffset operand1 = new BigIntegerOffset(1);
+            BigDec operand1 = new BigDec(1);
             if (exp1 >= 0)
             {
                 operand1 *= BigInteger.Pow(bi10, exp1);
@@ -191,7 +191,7 @@ public class BigIntOffsetTest
             else
             {
                 operand1 /= BigInteger.Pow(bi10, -exp1);
-                if (operand1 == BigIntegerOffset.Zero)
+                if (operand1 == BigDec.Zero)
                 {
                     continue;
                 }
@@ -199,7 +199,7 @@ public class BigIntOffsetTest
 
             for (var exp2 = -30; exp2 <= 30; exp2++)
             {
-                BigIntegerOffset operand2 = new BigIntegerOffset(1);
+                BigDec operand2 = new BigDec(1);
                 if (exp2 >= 0)
                 {
                     operand2 *= BigInteger.Pow(bi10, exp2);
@@ -207,7 +207,7 @@ public class BigIntOffsetTest
                 else
                 {
                     operand2 /= BigInteger.Pow(bi10, -exp2);
-                    if (operand2 == BigIntegerOffset.Zero)
+                    if (operand2 == BigDec.Zero)
                     {
                         continue;
                     }
@@ -217,7 +217,7 @@ public class BigIntOffsetTest
                 var expected = exp1 - exp2;
                 if (-expected > result.MaxPrecision)
                 {
-                    Assert.Equal(BigIntegerOffset.Zero, result);
+                    Assert.Equal(BigDec.Zero, result);
                     continue;
                 }
 
@@ -242,19 +242,19 @@ public class BigIntOffsetTest
     [Fact]
     public void CheckLongTailAdd()
     {
-        var a = new BigIntegerOffset(1m, 5);
-        var b = new BigIntegerOffset(1m, 30);
+        var a = new BigDec(1m, 5);
+        var b = new BigDec(1m, 30);
         b /= BigInteger.Pow(new BigInteger(10), 20);
 
         var c = a / b;
         var actual = 0;
-        while (c >= new BigIntegerOffset(10))
+        while (c >= new BigDec(10))
         {
             actual++;
-            c /= new BigIntegerOffset(10);
+            c /= new BigDec(10);
         }
 
-        Assert.Equal(BigIntegerOffset.One, c);
+        Assert.Equal(BigDec.One, c);
         Assert.Equal(20, actual);
     }
 
@@ -284,11 +284,11 @@ public class BigIntOffsetTest
         var result = new List<object[]>();
         foreach (var operand1 in rawValues)
         {
-            var a = new BigIntegerOffset(operand1);
+            var a = new BigDec(operand1);
 
             foreach (var operand2 in rawValues)
             {
-                var b = new BigIntegerOffset(operand2);
+                var b = new BigDec(operand2);
 
                 int expected;
                 if (operand1 == operand2)
@@ -315,8 +315,8 @@ public class BigIntOffsetTest
     [MemberData(nameof(CheckInequalityData))]
     [SuppressMessage("ReSharper", "ConvertIfStatementToSwitchStatement")]
     public void CheckInequality(
-        BigIntegerOffset operand1,
-        BigIntegerOffset operand2,
+        BigDec operand1,
+        BigDec operand2,
         int expectedEquality
     )
     {
@@ -395,8 +395,8 @@ public class BigIntOffsetTest
                 .SelectMany(operand1Prec => rawValues
                     .Select(operand2 => new object[]
                     {
-                        new BigIntegerOffset(operand1, operand1Prec),
-                        new BigIntegerOffset(operand2),
+                        new BigDec(operand1, operand1Prec),
+                        new BigDec(operand2),
                         operand1Prec,
                     })
                 ))
@@ -406,8 +406,8 @@ public class BigIntOffsetTest
     [Theory]
     [MemberData(nameof(CheckPrecisionData))]
     public void CheckPrecision(
-        BigIntegerOffset operand1,
-        BigIntegerOffset operand2,
+        BigDec operand1,
+        BigDec operand2,
         int _
     )
     {
@@ -430,20 +430,20 @@ public class BigIntOffsetTest
         result = operand2 * operand1;
         Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
 
-        if (operand2 > BigIntegerOffset.Zero)
+        if (operand2 > BigDec.Zero)
         {
             result = operand1 / operand2;
-            if ((result != BigIntegerOffset.One) && (result != BigIntegerOffset.Zero))
+            if ((result != BigDec.One) && (result != BigDec.Zero))
             {
                 Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
             }
         }
 
         // ReSharper disable once InvertIf
-        if (operand1 > BigIntegerOffset.Zero)
+        if (operand1 > BigDec.Zero)
         {
             result = operand2 / operand1;
-            if ((result != BigIntegerOffset.One) && (result != BigIntegerOffset.Zero))
+            if ((result != BigDec.One) && (result != BigDec.Zero))
             {
                 Assert.InRange(result.MaxPrecision, minPrecision, int.MaxValue);
             }
@@ -457,47 +457,47 @@ public class BigIntOffsetTest
     [Fact]
     public void ParseMultiDotString()
     {
-        Assert.Throws<BigIntegerOffsetException>(() => { BigIntegerOffset.Parse("123.321.11"); });
+        Assert.Throws<InfiniteDecimalException>(() => { BigDec.Parse("123.321.11"); });
     }
 
     [Fact]
     public void DivisionByZero()
     {
-        Assert.Throws<BigIntegerOffsetException>(() =>
+        Assert.Throws<InfiniteDecimalException>(() =>
         {
-            var _ = BigIntegerOffset.One / BigIntegerOffset.Zero;
+            var _ = BigDec.One / BigDec.Zero;
         });
     }
 
     [Fact]
     public void ToChar()
     {
-        Assert.Throws<BigIntegerOffsetException>(() =>
+        Assert.Throws<InfiniteDecimalException>(() =>
         {
-            var _ = BigIntegerOffset.One.ToChar(null);
+            var _ = BigDec.One.ToChar(null);
         });
     }
 
     [Fact]
     public void ToDateTime()
     {
-        Assert.Throws<BigIntegerOffsetException>(() =>
+        Assert.Throws<InfiniteDecimalException>(() =>
         {
-            var _ = BigIntegerOffset.One.ToDateTime(null);
+            var _ = BigDec.One.ToDateTime(null);
         });
     }
 
     [Fact]
     public void NegativeOffset()
     {
-        var offsetField = typeof(BigIntegerOffset)
+        var offsetField = typeof(BigDec)
             .GetProperty("Offset", BindingFlags.NonPublic | BindingFlags.Instance);
         if (offsetField is null)
         {
             throw new Exception("'Offset' property does not exist");
         }
 
-        var bio = new BigIntegerOffset(-2);
+        var bio = new BigDec(-2);
 
         try
         {
@@ -506,16 +506,16 @@ public class BigIntOffsetTest
         catch (System.Reflection.TargetInvocationException e)
         {
             Assert.NotNull(e.InnerException);
-            Assert.Equal(typeof(BigIntegerOffsetException), e.InnerException.GetType());
+            Assert.Equal(typeof(InfiniteDecimalException), e.InnerException.GetType());
         }
     }
 
     [Fact]
     public void UnreachableTypeForCasting()
     {
-        Assert.Throws<BigIntegerOffsetException>(() =>
+        Assert.Throws<InfiniteDecimalException>(() =>
         {
-            var _ = BigIntegerOffset.One.ToType(typeof(Task), null);
+            var _ = BigDec.One.ToType(typeof(Task), null);
         });
     }
 
@@ -526,29 +526,29 @@ public class BigIntOffsetTest
     [Fact]
     public void EqualWithNullViaOperator()
     {
-        Assert.False(BigIntegerOffset.One == null);
-        Assert.True(BigIntegerOffset.One != null);
-        Assert.False(null == BigIntegerOffset.One);
-        Assert.True(null != BigIntegerOffset.One);
+        Assert.False(BigDec.One == null);
+        Assert.True(BigDec.One != null);
+        Assert.False(null == BigDec.One);
+        Assert.True(null != BigDec.One);
     }
 
     [Fact]
     public void EqualWithNull()
     {
-        Assert.False(BigIntegerOffset.One.Equals(null));
+        Assert.False(BigDec.One.Equals(null));
     }
 
     [Fact]
     public void EqualWithBigInt()
     {
         // ReSharper disable once SuspiciousTypeConversion.Global
-        Assert.False(BigIntegerOffset.One.Equals(BigInteger.One));
+        Assert.False(BigDec.One.Equals(BigInteger.One));
     }
 
     [Fact]
     public void IsTypeCodeAnObject()
     {
-        Assert.Equal(TypeCode.Object, BigIntegerOffset.One.GetTypeCode());
+        Assert.Equal(TypeCode.Object, BigDec.One.GetTypeCode());
     }
 
     #endregion
@@ -594,7 +594,7 @@ public class BigIntOffsetTest
     [SuppressMessage("ReSharper", "InvertIf")]
     public void TestConversionUlong(ulong value)
     {
-        var bio = new BigIntegerOffset(value);
+        var bio = new BigDec(value);
         Assert.True(value == bio);
         Assert.False(value != bio);
 
@@ -659,7 +659,7 @@ public class BigIntOffsetTest
     [SuppressMessage("ReSharper", "InvertIf")]
     public void TestConversionLong(long value)
     {
-        var bio = new BigIntegerOffset(value);
+        var bio = new BigDec(value);
         Assert.True(value == bio);
         Assert.False(value != bio);
 
@@ -715,7 +715,7 @@ public class BigIntOffsetTest
         foreach (var value in values)
         {
             var u = (value > 0m);
-            var bio = new BigIntegerOffset(value);
+            var bio = new BigDec(value);
             Assert.Equal(u, bio.ToBoolean(null));
         }
     }
@@ -789,9 +789,9 @@ public class BigIntOffsetTest
     [MemberData(nameof(TestConvertDecimalData))]
     public void StringifyDecimal(decimal rawValue)
     {
-        var valueBio1 = new BigIntegerOffset(rawValue);
+        var valueBio1 = new BigDec(rawValue);
         var stringify = valueBio1.ToStringDouble();
-        var valueBio2 = BigIntegerOffset.Parse(stringify);
+        var valueBio2 = BigDec.Parse(stringify);
         Assert.Equal(valueBio1, valueBio2);
     }
 
@@ -799,7 +799,7 @@ public class BigIntOffsetTest
     [MemberData(nameof(TestConvertDecimalData))]
     public void TestConvertDecimal(decimal rawValue)
     {
-        var valueBio = new BigIntegerOffset(rawValue);
+        var valueBio = new BigDec(rawValue);
         var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1 = (decimal)valueBio;
         var decimalRevert2 = decimal.Parse(valueString);
@@ -809,7 +809,7 @@ public class BigIntOffsetTest
         Assert.Equal(rawValue, decimalRevert2);
         Assert.Equal(rawValue, decimalRevert3);
 
-        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        var valueBio2 = BigDec.Parse(valueString);
         Assert.Equal(valueBio, valueBio2);
 
         //
@@ -835,7 +835,7 @@ public class BigIntOffsetTest
         var rawValue = (double)preRawValue;
 
         //
-        var valueBio = new BigIntegerOffset(rawValue);
+        var valueBio = new BigDec(rawValue);
         var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1 = (decimal)valueBio;
         var decimalRevert2 = decimal.Parse(valueString);
@@ -845,24 +845,42 @@ public class BigIntOffsetTest
         Assert.Equal(preRawValue, decimalRevert2);
         Assert.InRange(decimalRevert1a, rawValue - 0.000000001d, rawValue + 0.000000001d);
 
-        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        var valueBio2 = BigDec.Parse(valueString);
         Assert.Equal(valueBio, valueBio2);
     }
 
+    public static object[][] TestConvertFloatData()
+    {
+        return TestConvertDoubleData()
+            .Where(items =>
+            {
+                var item = Math.Abs((decimal)items[0]);
+                // ReSharper disable once ConvertIfStatementToReturnStatement
+                if (item is 1000.0001m)
+                {
+                    // Nope. IEEE-754 single precision is not enought
+                    return false;
+                }
+
+                return true;
+            })
+            .ToArray();
+    }
+
     [Theory]
-    [MemberData(nameof(TestConvertDoubleData))]
+    [MemberData(nameof(TestConvertFloatData))]
     public void TestConvertFloat(decimal preRawValue)
     {
         var rawValue = (float)preRawValue;
 
         //
-        var valueBio = new BigIntegerOffset(rawValue);
+        var valueBio = new BigDec(rawValue);
         var valueString = valueBio.ToString(CultureInfo.InvariantCulture);
         var decimalRevert1a = (float)valueBio.ToType(typeof(float), null);
 
         Assert.InRange(decimalRevert1a, rawValue - 0.000001f, rawValue + 0.000001f);
 
-        var valueBio2 = BigIntegerOffset.Parse(valueString);
+        var valueBio2 = BigDec.Parse(valueString);
         Assert.Equal(valueBio, valueBio2);
     }
 
@@ -925,7 +943,7 @@ public class BigIntOffsetTest
         Assert.Equal(decimalActual, expectedString);
 
         //
-        var bio = new BigIntegerOffset(value);
+        var bio = new BigDec(value);
         var actual1 = bio.ToString(cultureInfo);
         var actual2 = bio.ToStringDouble(cultureInfo);
         var actual3 = (string)bio.ToType(typeof(string), cultureInfo);
@@ -975,8 +993,8 @@ public class BigIntOffsetTest
         BigInteger operand2
     )
     {
-        var arg1 = new BigIntegerOffset(operand1);
-        var arg2 = new BigIntegerOffset(operand2);
+        var arg1 = new BigDec(operand1);
+        var arg2 = new BigDec(operand2);
 
         Assert.Equal(operand1, (BigInteger)arg1);
         Assert.Equal(operand2, (BigInteger)arg2);
@@ -991,7 +1009,7 @@ public class BigIntOffsetTest
         var delimBI = operand1 / operand2;
 
         var delimResultBI = arg1 / arg2;
-        var delimResultBIO = new BigIntegerOffset(delimBI);
+        var delimResultBIO = new BigDec(delimBI);
         Assert.Equal(delimResultBI, delimResultBIO);
         Assert.True(delimResultBIO == delimBI);
         Assert.True(delimResultBI == delimBI);
@@ -1033,8 +1051,8 @@ public class BigIntOffsetTest
     [MemberData(nameof(TestBigInteger1ConversionData))]
     public void TestBigInteger1Conversion(BigInteger operand)
     {
-        var value = new BigIntegerOffset(operand);
-        var value01 = new BigIntegerOffset(0.1m);
+        var value = new BigDec(operand);
+        var value01 = new BigDec(0.1m);
 
         Assert.True(value != 0.1m);
         Assert.False(value == 0.1m);

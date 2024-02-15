@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
-using NCalc.BigIntOffset;
+using InfiniteDecimal;
 using Xunit;
 
 namespace NCalc.Tests.BigIntegerTests;
@@ -29,7 +29,7 @@ public class CompositeTests
             ("1.11", "0.0000000000037"),
         };
 
-        var types = new[] { "int", "uint", "long", "ulong", "decimal", "double", "BigInteger", "BigIntegerOffset", };
+        var types = new[] { "int", "uint", "long", "ulong", "decimal", "double", "BigInteger", "BigDec", };
 
         var divisionTests = rawInput
             .SelectMany(item =>
@@ -71,7 +71,7 @@ public class CompositeTests
                                     a: varA,
                                     b: varB,
                                     expr: "x / y",
-                                    expected: (object)(new BigIntegerOffset(decA / decB))
+                                    expected: (object)(new BigDec(decA / decB))
                                 );
                             }
                             catch (Exception)
@@ -87,7 +87,7 @@ public class CompositeTests
                 });
             })
             .Where(x => x.a is not null)
-            .Where(x => (x.a is BigIntegerOffset) || (x.b is BigIntegerOffset))
+            .Where(x => (x.a is BigDec) || (x.b is BigDec))
             .ToArray();
 
         return divisionTests;
@@ -108,7 +108,7 @@ public class CompositeTests
             ("0.1", "0.0654"),
         };
 
-        var types = new[] { "int", "uint", "long", "ulong", "decimal", "double", "BigInteger", "BigIntegerOffset", };
+        var types = new[] { "int", "uint", "long", "ulong", "decimal", "double", "BigInteger", "BigDec", };
         var emptyResponse = Array.Empty<(object a, object b, string expr, object expected)>();
 
         var firstTests = rawInput
@@ -148,11 +148,11 @@ public class CompositeTests
         return firstTests
             .Concat(MathOperationsData_Division())
             .Select(t => new object[] { t.a, t.b, t.expr, t.expected })
-            .Where(x => (x[0] is BigInteger) || (x[0] is BigIntOffset.BigIntegerOffset) ||
-                        (x[1] is BigInteger) || (x[1] is BigIntOffset.BigIntegerOffset))
+            .Where(x => (x[0] is BigInteger) || (x[0] is BigDec) ||
+                        (x[1] is BigInteger) || (x[1] is BigDec))
             .Where(x =>
             {
-                if ((x[0] is BigIntegerOffset) || (x[1] is BigIntegerOffset))
+                if ((x[0] is BigDec) || (x[1] is BigDec))
                 {
                     return true;
                 }
@@ -198,7 +198,7 @@ public class CompositeTests
             "double" => double.Parse(value),
             "decimal" => decimal.Parse(value),
             "BigInteger" => BigInteger.Parse(value),
-            "BigIntegerOffset" => NCalc.BigIntOffset.BigIntegerOffset.Parse(value),
+            "BigDec" => BigDec.Parse(value),
             _ => throw new ArgumentOutOfRangeException(nameof(value))
         };
     }
@@ -277,26 +277,26 @@ public class CompositeTests
         };
 
         object actual = e.Evaluate();
-        if ((x.value is BigIntOffset.BigIntegerOffset) || (y.value is BigIntOffset.BigIntegerOffset))
+        if ((x.value is BigDec) || (y.value is BigDec))
         {
             Assert.True(
-                actual is BigIntOffset.BigIntegerOffset,
-                $"Arithmetic operation '{expr}' made '{actual.GetType().Name}' from '{x.value.GetType().Name}' and '{y.value.GetType().Name}' instead of BigIntegerOffset"
+                actual is BigDec,
+                $"Arithmetic operation '{expr}' made '{actual.GetType().Name}' from '{x.value.GetType().Name}' and '{y.value.GetType().Name}' instead of BigDec"
             );
         }
 
         // ReSharper disable once ConvertIfStatementToSwitchStatement
-        if (actual is BigIntOffset.BigIntegerOffset actualBIO)
+        if (actual is BigDec actualBIO)
         {
             switch (expected)
             {
                 case decimal expDecimal:
-                    Assert.Equal(new BigIntOffset.BigIntegerOffset(expDecimal), actualBIO);
+                    Assert.Equal(new BigDec(expDecimal), actualBIO);
                     break;
                 case BigInteger expBI:
-                    Assert.Equal(new BigIntOffset.BigIntegerOffset(expBI), actualBIO);
+                    Assert.Equal(new BigDec(expBI), actualBIO);
                     break;
-                case BigIntOffset.BigIntegerOffset expBIO:
+                case BigDec expBIO:
                     Assert.Equal(expBIO, actualBIO);
                     break;
                 default:
@@ -314,8 +314,8 @@ public class CompositeTests
                 case BigInteger expBI:
                     Assert.Equal(expBI, actualBI);
                     break;
-                case BigIntOffset.BigIntegerOffset expBIO:
-                    Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(actualBI));
+                case BigDec expBIO:
+                    Assert.Equal(expBIO, new BigDec(actualBI));
                     break;
                 default:
                     throw new NotImplementedException(
@@ -331,8 +331,8 @@ public class CompositeTests
                     break;
                 case BigInteger:
                     throw new ArgumentOutOfRangeException(nameof(expected), "expected value can't be BigInteger");
-                case BigIntOffset.BigIntegerOffset expBIO:
-                    Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(actualDecimal));
+                case BigDec expBIO:
+                    Assert.Equal(expBIO, new BigDec(actualDecimal));
                     break;
                 default:
                     throw new NotImplementedException(
@@ -348,8 +348,8 @@ public class CompositeTests
                     break;
                 case BigInteger:
                     throw new ArgumentOutOfRangeException(nameof(expected), "expected value can't be BigInteger");
-                case BigIntOffset.BigIntegerOffset expBIO:
-                    Assert.Equal(expBIO, new BigIntOffset.BigIntegerOffset(actualDouble));
+                case BigDec expBIO:
+                    Assert.Equal(expBIO, new BigDec(actualDouble));
                     break;
                 default:
                     throw new NotImplementedException(
@@ -448,7 +448,7 @@ public class CompositeTests
             {
                 var arguments = t.arguments
                     .Select((value, index) => (value, index))
-                    .ToDictionary(t1 => varNames[t1.index], t1 => new ParamWrapper(BigIntegerOffset.Parse(t1.value)));
+                    .ToDictionary(t1 => varNames[t1.index], t1 => new ParamWrapper(BigDec.Parse(t1.value)));
 
                 return new object[]
                 {
@@ -472,8 +472,8 @@ public class CompositeTests
         e.EvaluateParameter += delegate(string name, ParameterArgs args)
         {
             var rawValue = arguments[name].value;
-            BigIntegerOffset castedValue;
-            if (rawValue is BigIntegerOffset a1)
+            BigDec castedValue;
+            if (rawValue is BigDec a1)
             {
                 castedValue = a1;
             }
@@ -486,9 +486,9 @@ public class CompositeTests
         };
 
         object actual = e.Evaluate();
-        if (actual is BigIntOffset.BigIntegerOffset actualBIO)
+        if (actual is BigDec actualBIO)
         {
-            Assert.Equal(new BigIntegerOffset(expected), actualBIO);
+            Assert.Equal(new BigDec(expected), actualBIO);
         }
         else
         {
